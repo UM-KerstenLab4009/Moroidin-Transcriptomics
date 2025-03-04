@@ -1,8 +1,8 @@
 # Moroidin-Transcriptomics
 Softwares:
-# sratoolkit v2.10.9
-# trimgalore v0.6.7
-# seqkit v2.3.0
+  sratoolkit v2.10.9
+  trimgalore v0.6.7
+  seqkit v2.3.0
 # orfipy v0.0.4
 # spades v3.15.5
 # trinity v2.15.5
