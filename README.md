@@ -5,3 +5,8 @@ The following scripts were submitted to a computational cluster via SLURM.
 
 
 # seqkit-grep search of QLLVW motifs in unassembled data
+Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
+1. SRA-download – see transcriptome assembly
+Raw RNA-seq datasets were downloaded as described under SRA download with sratoolkit (v2.10.9).
+2. Trimming
+Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly):
