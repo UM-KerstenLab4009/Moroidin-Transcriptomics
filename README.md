@@ -139,7 +139,7 @@ Combine unassembled fasta files into one fasta file in their directory with the 
 cat *.fasta > unassembled_data_search.fasta
 ```
 
-5. Orfipy 6frame translation
+5. Orfipy frame translation
 Install orfipy:
 ```
 pip install orfipy
@@ -203,3 +203,137 @@ awk '/^>/ { split($1, a, "."); print substr(a[1], 2) }' seqkit_grep_hits.pep | s
 
 # Transcriptome assembly – single dataset
 1. SRA-download
+The following scripts were submitted to a computational cluster via SLURM.
+Configure your cluster for sratools commands by running the command:
+```
+./vdb-config -i
+```
+
+Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
+```
+#!/bin/bash
+#SBATCH --job-name=sra-download
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=01:00:00
+#SBATCH --mem=10g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./sratools-%j
+source /etc/profile.d/http_proxy.sh
+module load Bioinformatics
+module load sratoolkit/2.10.9-udmejx7
+fasterq-dump SRR8782583 --split-files
+```
+2. Trimming
+
+To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
+```
+#!/bin/bash
+#SBATCH --job-name=trimgalore
+#SBATCH –account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./trimgalore-%j
+module load Bioinformatics
+module load trimgalore/0.6.7-ztb2tpz
+trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
+```
+
+3. Transcriptome assembly
+   
+Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets
+
+a. SPAdes – paired-ended datasets
+```
+#!/bin/bash
+#SBATCH --job-name=SPAdes
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./SPAdes-%j
+module load Bioinformatics
+module load spades/3.15.5-jhe6qq2
+spades.py --rna -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o spades_SRA#
+cd spades_SRA#
+mv transcripts.fasta spades_SRA#.fasta
+```
+
+b. SPAdes – single-ended datasets
+```
+#!/bin/bash
+#SBATCH --job-name=SPAdes
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./SPAdes-%j
+module load Bioinformatics
+module load spades/3.15.5-jhe6qq2
+spades.py --rna -s ./SRA#_trimmed.fq -o spades_SRA#
+cd spades_SRA#
+mv transcripts.fasta spades_SRA#.fasta
+```
+
+c. Trinity
+```
+#!/bin/bash
+#SBATCH --job-name=Trinity
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./Trinity-%j
+module load Bioinformatics
+module load trinity/2.15.1
+LOG_FILE="trinity_log.txt"
+TRINITY_PARAMS="--SS_lib_type RF --max_memory 180G --CPU 8 --trimmomatic --seqType fq --left SRA#_1_val_1.fq --right SRA#_2_val_2.fq --min_glue 2 --min_kmer_cov 1 --full_cleanup --no_normalize_reads" 
+Trinity $TRINITY_PARAMS
+```
+
+d. MEGAHIT
+```
+#!/bin/bash
+#SBATCH --job-name=megahit
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./megahit-%j
+module load MEGAHIT/1.2.9
+MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
+```
+
+# Transcriptome assembly – multiple datasets
+
+1. 
