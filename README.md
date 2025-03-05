@@ -139,7 +139,7 @@ Combine unassembled fasta files into one fasta file in their directory with the 
 cat *.fasta > unassembled_data_search.fasta
 ```
 
-5. Orfipy frame translation
+5. Orfipy 6frame translation
 Install orfipy:
 ```
 pip install orfipy
@@ -512,3 +512,104 @@ QYPKTFFYKEDLHPGKTMKVQFTKRPYAQPYGVYTWLTDIKDTSKEGYSFEEICIKKEAFEGEEKFCAKS
 LGTVIGFAISKLGKNIQVLSSSFVNKQEQYTVEGVQNLGDKAVMCHGLNFRTAVFYCHKVRETTAFVVPL
 VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
 ```
+
+3. Orfipy
+Search hits from Sequenceserver were 6frame translated with orfipy with 450 bp minimum open reading frames due to the size of the target BURP protein domain of >200 amino acids (>600 bp).
+```
+#!/bin/bash
+#SBATCH --job-name=orfipy
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./orfipy-%j
+orfipy --pep sequenceserver-hits.pep --min 450 --between-stops sequenceserver-hits.fasta
+```
+
+4. RepeatFinder analysis
+RepeatFinder was run as a standalone version on a computational cluster.
+Install RepeatFinder:
+```
+git clone https://github.com/FlorisdeWaal/repeatfinder_standalone
+```
+Copy sequenceserver-hits.pep file into the standalone directory
+```
+```
+Run RepeatFinder via python2:
+```
+```
+The resulting html-file includes predicted stephanotic acid-type burpitide cyclases based on the ‘___’ motif 
+Assignment. To search for other core peptide patterns, open the file ___ in the ___ directory:
+```
+```
+and add a target core peptide motif, for example for moroidins:
+```
+```
+
+# Commandline-PHI-BLAST search and burpitide prediction
+1. Commandline BLAST search
+An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly) combined as a single fasta-file.
+
+a.	Generate transcriptome input file from multiple transcriptome assembly fasta files in a directory:
+```
+cat *.fasta > all.fasta
+```
+b.	Generate query.faa file
+```
+touch query.faa
+nano query.faa
+```
+Copy target protein sequence (Kerria japonica moroidin cyclase), for searching stephanotic acid-type burpitides:
+```
+>QIG55799.1 BURP domain protein [Kerria japonica]
+MACRLSLIFAFLCLTLVACHAALSPQEVYWNSVFPQTPMPKTLSALVQPAAKNFIRYKKVDDGQTQDIDV
+AADNQLLVWRGHVAIDDDAAADNQLLVWRGHVAIDDDDAAADNQLLVWRGHVAIHDDAAADNQLLVWRAH 
+VANDDVDARNLLRKDPSRVLVFLEKDVHPGKTMKYSLIRSLPKSATFLPRNTAESIPFSSSKLLEILIQF 
+SVQPKSVEANAMTEAILKCEVPAMRGEAKYCATSLESMIDFVTSRLGRNIRAISTEVEEGATHVQNYTIY 
+HGVKKLTDKKVITCHRLRYPYVVFYCHELENTSIYMVPLKGADGTNAKAITTCHEDTSEWDPKSFVLQLL 
+KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
+```
+c. Generate phi_pattern.txt file
+```
+touch phi_pattern.txt
+nano phi_pattern.txt
+```
+Add the following text for searching a core peptide ‘QLxxW’ (where x is any proteinogenic amino acid) and save:
+```
+PA QQL-x(2)-W
+```
+d. PHI-BLAST search
+Install orfipy before PHI-BLAST search as described above. The same orfipy translation parameters were applied for PHI-BLAST search as for Sequenceserver-based tblastn search of burpitide cyclase sequences (i.e. minimum of 450 bp open reading frame length, translation between stop codons).
+```
+#!/bin/bash
+#SBATCH --job-name=phiblast-QLxxW
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@mail.com
+#SBATCH --mail-type=END
+#SBATCH --output=./phiblast-%j
+module load Bioinformatics
+module load blast-plus/2.16.0
+module load seqkit
+orfipy --pep all.pep --min 450 --between-stops all.fasta
+cp orfipy_all.fasta_out/all.pep .
+awk '/^>/ {print $1; next} {print}' all.pep > cleaned_all.pep
+makeblastdb -in cleaned_all.pep -dbtype prot -out cleaned_all_db
+psiblast -db cleaned_all_db -query query.faa -out cleaned_all_phiblast.txt -phi_pattern phi_pattern.txt
+grep ">" cleaned_all_phiblast.txt | awk '{print $1}' | tr -d '>' > hits.txt
+seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
+```
+For searching other core peptide motifs, please change the phi_pattern.txt file according to the ___ manual and use a query burpitide cyclase protein sequence which includes the target core peptide motif.
+
+
+#
