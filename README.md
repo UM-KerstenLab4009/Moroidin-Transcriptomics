@@ -363,3 +363,152 @@ printf "\n...done\n\n"
 2. Batch trimming
 
 Generate directories for fwd reads and rev reads of NCBI SRA fastq-files.
+```
+mkdir
+input_data_1
+mkdir
+input_data_2
+```
+Move fwd reads to input_data_1/ directory
+```
+mv *_1.fastq /path/to/input_data_1/
+```
+Move rev reads to input_data_2/ directory
+```
+mv *_2.fastq /path/to/input_data_2/
+```
+Run batch TrimGalore-trimming script:
+```
+#!/bin/bash
+#SBATCH --job-name=trimgalore
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --array=1-(insert-number-of-datasets-in-input_data_1_directory)
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./trimgalore-%j
+module load Bioinformatics
+module load trimgalore/0.6.7-ztb2tpz
+file1=$(ls ./input_data_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+trim_galore --cores 4 --paired ./input_data_1/${file1} ./input_data_2/${file2}
+```
+
+3. Batch transcriptome assembly (SPAdes)
+Generate directories for trimmed fwd reads and trimmed rev reads of NCBI SRA fastq-files.
+```
+mkdir input_data_trimmed_1
+mkdir input_data_trimmed_2
+```
+Move trimmed fwd reads to input_data_trimmed_1/ directory
+```
+mv *_1.fq /path/to/input_data_trimmed_1/
+```
+Move trimmed rev reads to input_data_trimmed_2/ directory
+```
+mv *_2.fq /path/to/input_data_trimmed_2/
+```
+Run SPAdes batch assembly:
+```
+#!/bin/bash
+#SBATCH --job-name=SPAdes
+#SBATCH --account=your_account 
+#SBATCH --partition=standard
+#SBATCH --array=1-(insert-number-of-datasets-in-input_data_trimmed_1_directory)
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@mail.com
+#SBATCH --mail-type=END
+#SBATCH --output=./SPAdes-%j
+module load Bioinformatics
+module load spades/3.15.5-jhe6qq2
+file1=$(ls ./input_data_trimmed_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+file2=$(ls ./input_data_trimmed_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+spades.py --rna -1 ./input_data_trimmed_1/${file1} -2 ./input_data_trimmed_2/${file2} -o spades_$file1
+cd spades_$file1
+mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
+```
+
+# Sequenceserver-based BLAST search and burpitide prediction
+1. BLAST database formatting
+
+Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.
+
+a. SPAdes
+```
+#!/bin/bash
+#SBATCH --job-name=rename
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=10g
+#SBATCH --mail-user=your@mail.com
+#SBATCH --mail-type=END
+#SBATCH --output=./rename-%j
+for i in *fasta; do n="${i%.fasta}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
+cat *fasta
+sed -i 's/_length//g' *fasta
+sed -i 's/_cov//g' *fasta
+sed -i 's/_g//g' *fasta
+sed -i 's/_i//g' *fasta
+```
+b. MEGAHIT
+```
+#!/bin/bash
+#SBATCH --job-name=rename
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+##SBATCH --gres=gpu:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=10g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END 
+#SBATCH --output=./rename-%j 
+for i in *fa; do n="${i%.fa}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
+cat *fa
+sed -i 's/ flag=/_/g' *fa
+sed -i 's/ multi=/_/g' *fa
+sed -i 's/ len=/_/g' *fa
+```
+c. Trinity
+```
+#!/bin/bash
+#SBATCH --job-name=rename
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=10g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./rename-%j
+for i in *fa; do n="${i%.fa}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
+cat *fa
+sed -i 's/len.*]/ /g' *.fa
+```
+2. Sequenceserver search and search-hit.fasta download
+
+For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.15.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
+```
+>AAB66369.1 Sali3-2 [Glycine max]
+MEFRCSVISFTILFSLALAGESHVHASLPEEDYWEAVWPNTPIPTALRDVLKPLPAGVEIDQLPKQIDDT
+QYPKTFFYKEDLHPGKTMKVQFTKRPYAQPYGVYTWLTDIKDTSKEGYSFEEICIKKEAFEGEEKFCAKS
+LGTVIGFAISKLGKNIQVLSSSFVNKQEQYTVEGVQNLGDKAVMCHGLNFRTAVFYCHKVRETTAFVVPL
+VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
+```
