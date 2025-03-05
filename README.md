@@ -612,4 +612,115 @@ seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 For searching other core peptide motifs, please change the phi_pattern.txt file according to the ___ manual and use a query burpitide cyclase protein sequence which includes the target core peptide motif.
 
 
-#
+# Genome-guided transcriptome assembly
+1.	SRA-download
+Download SRA RNA-seq datasets as specified above for single datasets.
+
+2. Trimming
+Trim RNA-seq datasets as specified above for single datasets.
+
+3.	STAR alignment
+Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter).
+```
+#!/bin/bash
+#SBATCH --job-name=star
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./star-align-%j
+module load Bioinformatics
+module load star/2.7.11a-hdp2onj
+STAR --runThreadN 7 --runMode genomeGenerate --genomeDir /path-to-directory/ --genomeFastaFiles ./genomic.fasta --sjdbGTFfile ./genome.gtf --sjdbOverhang 150
+```
+For large genomes, more memory might be required for STAR alignment. For example, STAR alignment of the wheat genome (16 Gbp) required 422 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 139 GB memory.
+
+
+4. STAR mapping
+The following script was used for STAR mapping of paired-ended trimmed RNA-seq datasets:
+```
+#!/bin/bash
+#SBATCH --job-name=star-map
+#SBATCH --account=your account       
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./star-map-%j
+module load Bioinformatics
+module load star/2.7.11a-hdp2onj
+STAR --runThreadN 7 --runMode alignReads --genomeDir /path-to-directory/ --readFilesIn ./SRA#_1_val_1.fq ./SRA#_2_val_2.fq
+```
+The resulting output files include an Aligned.out.sam file. For large genomes, more memory might be required for STAR mapping. For example, STAR mapping of the wheat genome (16 Gbp) required 163 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 63 GB memory.
+
+5.	BAM file generation
+The following script formats the Aligned.out.sam file to an Aligned.out.bam which can be used as an input file for StringTie assembly.
+```
+#!/bin/bash
+#SBATCH --job-name=samtools
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./samtools-%j 
+module load Bioinformatics
+module load samtools/1.21
+samtools sort -o Aligned.out.bam Aligned.out.sam
+```
+
+6.	Transcriptome assembly
+a.	StringTie
+StringTie (v2.2.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows:
+```
+#!/bin/bash
+#SBATCH --job-name=stringtie
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@mail.com
+#SBATCH --mail-type=END
+#SBATCH --output=./stringtie-%j
+module load Bioinformatics
+module load stringtie
+stringtie -o stringtie-SRA#.gtf Aligned.out.bam
+```
+
+b.	Trinity
+Trinity (v2.15.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows: 
+```
+#!/bin/bash
+#SBATCH --job-name=trinity
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=36:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./trinity-%j
+module load Bioinformatics
+module load trinity/2.15.1
+LOG_FILE="trinity_log.txt"
+TRINITY_PARAMS="--SS_lib_type RF --max_memory 48G --CPU 8 --genome_guided_bam Aligned.out.bam --genome_guided_max_intron 50000 --output trinity-SRA#" 
+Trinity $TRINITY_PARAMS
+```
