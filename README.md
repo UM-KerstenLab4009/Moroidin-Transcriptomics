@@ -51,6 +51,7 @@ trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 
 3. Seqkit-remove duplicates
 Seqkit (v 2.3.0) remove duplicate command was used to remove duplicate reads in raw RNA-seq datasets.
+
     a.Generate directories for trimmed fwd reads and trimmed rev reads of trimmed NCBI SRA fastq-files
 ```
 mkdir input_data_trimmed_1
