@@ -17,12 +17,13 @@ megahit v1.2.9
 
 blast-plus v2.16.0
 
-stringtie v2.2.1, 
+stringtie v2.2.1
 
-samtools v1.21, star v2.7.11a
+samtools v1.21
+
+star v2.7.11a
 
 The following scripts were submitted to a computational cluster via SLURM.
-
 
 # Seqkit-grep search of QLLVW motifs in unassembled data
 Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
