@@ -10,6 +10,7 @@ Unassembled RNA-seq data was searched for the presence of the stephanotic acid c
 Raw RNA-seq datasets were downloaded as described under SRA download with sratoolkit (v2.10.9).
 2. Trimming
 Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly):
+```
 #!/bin/bash
 #SBATCH --job-name=trimgalore
 #SBATCH --account=your_account
@@ -25,4 +26,4 @@ Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the f
 module load Bioinformatics
 module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
-
+```
