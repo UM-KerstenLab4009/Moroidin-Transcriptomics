@@ -110,7 +110,96 @@ c. Move remove-duplicate rev reads to input_data_rmdup_2/ directory
 mv *_2.fq /path/to/input_data_rmdup_2/
 ```
 
-d. 
+d. Run batch seqkit-rmdup script:
 ```
-Run batch seqkit-rmdup script:
+#!/bin/bash
+#SBATCH --job-name=fastq2fasta
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --array=1-(insert-number-of-datasets-in-input_data_rmdup_1_directory)
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=24:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./fq2fa-%j
+module load Bioinformatics
+module load seqkit
+file1=$(ls ./input_data_rmdup_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+file2=$(ls ./input_data_rmdup_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+seqkit fq2fa ./input_data_rmdup_1/${file1} -o ./${file1}.fasta
+seqkit fq2fa ./input_data_rmdup_2/${file2} -o ./${file2}.fasta
 ```
+
+e. Combination of unassembled fasta files
+Combine unassembled fasta files into one fasta file in their directory with the following command:
+```
+cat *.fasta > unassembled_data_search.fasta
+```
+
+5. Orfipy 6frame translation
+Install orfipy:
+```
+pip install orfipy
+```
+The unassembled RNA-seq read fasta file was translated in 6 frames with orfipy (v0.0.4). The minimum bp length was set to 90 bp to include short read lengths in the raw RNA-seq data search.
+
+```
+#!/bin/bash
+#SBATCH --job-name=orfipy
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./orfipy-%j
+orfipy --pep unassembled_data_search.pep --min 90 --between-stops unassembled_data_search.fasta
+```
+
+6. Seqkit-grep-QLLVW-search
+Seqkit (v 2.3.0) grep command was used to search the unassembled, 6frame-translated RNA-seq data for the core peptide motif QLLVW with the command:
+```
+#!/bin/bash
+#SBATCH --job-name=seqkit-grep-QLLVW
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./seqkit-QLLVW-%j
+module load Bioinformatics
+module load seqkit
+awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
+seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
+```
+
+7. Extract SRA codes and count QLLVW reads per SRA code
+SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
+```
+#!/bin/bash
+#SBATCH --job-name=SRA-codes
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=01:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./sra-extract-%j
+awk '/^>/ { split($1, a, "."); print substr(a[1], 2) }' seqkit_grep_hits.pep | sort | uniq -c > seqkit_grep_hits_sra_codes.txt
+```
+
+# Transcriptome assembly – single dataset
+1. SRA-download
