@@ -1,15 +1,15 @@
 # Moroidin-Transcriptomics
 Softwares: 
 
-sratoolkit v2.10.9
+sratoolkit v2.10.9:  https://github.com/ncbi/sra-tools 
 
-trimgalore v0.6.7
+trimgalore v0.6.7: https://github.com/FelixKrueger/TrimGalore
 
-seqkit v2.3.0
+seqkit v2.3.0: https://github.com/shenwei356/seqkit/releases
 
-orfipy v0.0.4
+orfipy v0.0.4: https://github.com/urmi-21/orfipy
 
-spades v3.15.5
+spades v3.15.5: https://github.com/ablab/spades
 
 trinity v2.15.5
 
