@@ -57,3 +57,8 @@ Seqkit (v 2.3.0) remove duplicate command was used to remove duplicate reads in 
 mkdir input_data_trimmed_1
 mkdir input_data_trimmed_2
 ```
+
+b. Move trimmed fwd reads to input_data_trimmed_1/ directory
+```
+mv *_1.fq /path/to/input_data_trimmed_1/
+```
