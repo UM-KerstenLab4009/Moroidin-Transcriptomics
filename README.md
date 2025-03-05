@@ -336,4 +336,30 @@ MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
 
 # Transcriptome assembly – multiple datasets
 
-1. 
+1. Batch SRA-download
+For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
+```
+#!/bin/bash
+#SBATCH --job-name=sra-download          
+#SBATCH --account=your_account            
+#SBATCH --partition=standard            
+#SBATCH --nodes=1                             
+#SBATCH --ntasks=1                               
+#SBATCH --cpus-per-task=8                
+#SBATCH --time=24:00:00                         
+#SBATCH --mem=48g                               
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END                 
+#SBATCH --output=./sratools-%j
+source /etc/profile.d/http_proxy.sh
+module load Bioinformatics
+module load sratoolkit/2.10.9-udmejx7
+sed -i 's/\r$//' SRA.txt & 
+cat SRA.txt |parallel -j 10 xargs -n 25 -P 0 fasterq-dump --split-files --outdir "/path-to-directory" & jobs -l
+wait
+printf "\n...done\n\n"
+```
+
+2. Batch trimming
+
+Generate directories for fwd reads and rev reads of NCBI SRA fastq-files.
