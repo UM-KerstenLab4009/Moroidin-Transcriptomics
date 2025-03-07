@@ -11,17 +11,17 @@ orfipy v0.0.4: https://github.com/urmi-21/orfipy
 
 spades v3.15.5: https://github.com/ablab/spades
 
-trinity v2.15.5
+trinity v2.15.5: https://github.com/trinityrnaseq/trinityrnaseq
 
-megahit v1.2.9
+megahit v1.2.9: https://github.com/voutcn/megahit
 
-blast-plus v2.16.0
+blast-plus v2.16.0: 
 
-stringtie v2.2.1
+stringtie v2.2.1: https://github.com/gpertea/stringtie
 
-samtools v1.21
+samtools v1.21: https://github.com/samtools/samtools
 
-star v2.7.11a
+star v2.7.11a: https://github.com/alexdobin/STAR
 
 The following scripts were submitted to a computational cluster via SLURM.
 
