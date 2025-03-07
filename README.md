@@ -15,7 +15,7 @@ trinity v2.15.5: https://github.com/trinityrnaseq/trinityrnaseq
 
 megahit v1.2.9: https://github.com/voutcn/megahit
 
-blast-plus v2.16.0: 
+blast-plus v2.16.0: https://github.com/ncbi/blast_plus_docs
 
 stringtie v2.2.1: https://github.com/gpertea/stringtie
 
