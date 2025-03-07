@@ -1,5 +1,5 @@
 # Moroidin-Transcriptomics
-Softwares: 
+Softwares 
 
 sratoolkit v2.10.9:  https://github.com/ncbi/sra-tools 
 
