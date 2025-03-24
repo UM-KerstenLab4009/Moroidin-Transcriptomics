@@ -306,143 +306,8 @@ phiblast.txt were analyzed manually for SRA datasets with KjaBURP search hits wi
 
 # Seqkit-grep search of QLLVW motifs in unassembled data
 Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
-1. SRA-download – see transcriptome assembly
-Raw RNA-seq datasets were downloaded as described under SRA download with sratoolkit (v2.10.9).
-2. Trimming
-Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly):
-```
-#!/bin/bash
-#SBATCH --job-name=trimgalore
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=02:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./trimgalore-%j
-module load Bioinformatics
-module load trimgalore/0.6.7-ztb2tpz
-trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
-```
-
-3. Seqkit-remove duplicates
-Seqkit (v 2.3.0) remove duplicate command was used to remove duplicate reads in raw RNA-seq datasets.
-
-a. Generate directories for trimmed fwd reads and trimmed rev reads of trimmed NCBI SRA fastq-files
-```
-mkdir input_data_trimmed_1
-mkdir input_data_trimmed_2
-```
-
-b. Move trimmed fwd reads to input_data_trimmed_1/ directory
-```
-mv *_1.fq /path/to/input_data_trimmed_1/
-```
-
-c. Move trimmed rev reads to input_data_trimmed_2/ directory
-```
-mv *_2.fq /path/to/input_data_trimmed_2/
-```
-
-d. Run batch seqkit-rmdup script:
-```
-#!/bin/bash
-#SBATCH --job-name=remove-duplicates
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --array=1-(insert-number-of-datasets-in-input_data_trimmed_1_directory)
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./rmdup-%j 
-module load Bioinformatics
-module load seqkit
-file1=$(ls ./input_data_trimmed_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-file2=$(ls ./input_data_trimmed_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-seqkit rmdup -s ./input_data_trimmed_1/${file1} -o ./${file1}
-seqkit rmdup -s ./input_data_trimmed_2/${file2} -o ./${file2}
-```
-
-4. Seqkit-fastq-to-fasta-conversion
-Seqkit (v 2.3.0) fastq-to-fasta command was used to remove duplicate reads in raw RNA-seq datasets.
-
-a. Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
-```
-mkdir input_data_rmdup_1
-mkdir input_data_rmdup_2
-```
-
-b. Move remove-duplicate fwd reads to input_data_rmdup_1/ directory
-```
-mv *_1.fq /path/to/input_data_rmdup_1/
-```
-
-c. Move remove-duplicate rev reads to input_data_rmdup_2/ directory
-```
-mv *_2.fq /path/to/input_data_rmdup_2/
-```
-
-d. Run batch seqkit-rmdup script:
-```
-#!/bin/bash
-#SBATCH --job-name=fastq2fasta
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --array=1-(insert-number-of-datasets-in-input_data_rmdup_1_directory)
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=24:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./fq2fa-%j
-module load Bioinformatics
-module load seqkit
-file1=$(ls ./input_data_rmdup_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-file2=$(ls ./input_data_rmdup_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-seqkit fq2fa ./input_data_rmdup_1/${file1} -o ./${file1}.fasta
-seqkit fq2fa ./input_data_rmdup_2/${file2} -o ./${file2}.fasta
-```
-
-e. Combination of unassembled fasta files
-Combine unassembled fasta files into one fasta file in their directory with the following command:
-```
-cat *.fasta > unassembled_data_search.fasta
-```
-
-5. Orfipy 6frame translation
-Install orfipy:
-```
-pip install orfipy
-```
-The unassembled RNA-seq read fasta file was translated in 6 frames with orfipy (v0.0.4). The minimum bp length was set to 90 bp to include short read lengths in the raw RNA-seq data search.
-
-```
-#!/bin/bash
-#SBATCH --job-name=orfipy
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./orfipy-%j
-orfipy --pep unassembled_data_search.pep --min 90 --between-stops unassembled_data_search.fasta
-```
-
-6. Seqkit-grep-QLLVW-search
-Seqkit (v 2.3.0) grep command was used to search the unassembled, 6frame-translated RNA-seq data for the core peptide motif QLLVW with the command:
+a.  Seqkit-grep-QLLVW-search
+Seqkit (v 2.3.0) grep command was used to search unassembled, 6frame-translated RNA-seq data for the core peptide motif QLLVW with the following command. unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
 ```
 #!/bin/bash
 #SBATCH --job-name=seqkit-grep-QLLVW
@@ -461,8 +326,7 @@ module load seqkit
 awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
 seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
 ```
-
-7. Extract SRA codes and count QLLVW reads per SRA code
+b. Extract SRA codes and count QLLVW reads per SRA code
 SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
 ```
 #!/bin/bash
@@ -487,7 +351,6 @@ Configure your cluster for sratools commands by running the command:
 ```
 ./vdb-config -i
 ```
-
 Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
 ```
 #!/bin/bash
@@ -508,7 +371,6 @@ module load sratoolkit/2.10.9-udmejx7
 fasterq-dump SRR8782583 --split-files
 ```
 2. Trimming
-
 To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
 ```
 #!/bin/bash
@@ -529,9 +391,7 @@ trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
 
 3. Transcriptome assembly
-   
-Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets
-
+Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
 a. SPAdes – paired-ended datasets
 ```
 #!/bin/bash
@@ -614,7 +474,6 @@ MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
 ```
 
 # Transcriptome assembly – multiple datasets
-
 1. Batch SRA-download
 For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
 ```
@@ -640,11 +499,12 @@ printf "\n...done\n\n"
 ```
 
 2. Batch trimming
-
 Generate directories for fwd reads and rev reads of NCBI SRA fastq-files.
 ```
 mkdir
 input_data_1
+```
+```
 mkdir
 input_data_2
 ```
@@ -682,6 +542,8 @@ trim_galore --cores 4 --paired ./input_data_1/${file1} ./input_data_2/${file2}
 Generate directories for trimmed fwd reads and trimmed rev reads of NCBI SRA fastq-files.
 ```
 mkdir input_data_trimmed_1
+```
+```
 mkdir input_data_trimmed_2
 ```
 Move trimmed fwd reads to input_data_trimmed_1/ directory
@@ -718,9 +580,7 @@ mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
 
 # Sequenceserver-based BLAST search and burpitide prediction
 1. BLAST database formatting
-
 Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.
-
 a. SPAdes
 ```
 #!/bin/bash
@@ -781,8 +641,8 @@ for i in *fa; do n="${i%.fa}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
 cat *fa
 sed -i 's/len.*]/ /g' *.fa
 ```
-2. Sequenceserver search and search-hit.fasta download
 
+2. Sequenceserver search and search-hit.fasta download
 For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.15.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
 ```
 >AAB66369.1 Sali3-2 [Glycine max]
@@ -833,7 +693,6 @@ and add a target core peptide motif, for example for moroidins:
 # Commandline-PHI-BLAST search and burpitide prediction
 1. Commandline BLAST search
 An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly) combined as a single fasta-file.
-
 a.	Generate transcriptome input file from multiple transcriptome assembly fasta files in a directory:
 ```
 cat *.fasta > all.fasta
@@ -894,10 +753,8 @@ For searching other core peptide motifs, please change the phi_pattern.txt file 
 # Genome-guided transcriptome assembly
 1.	SRA-download
 Download SRA RNA-seq datasets as specified above for single datasets.
-
 2. Trimming
 Trim RNA-seq datasets as specified above for single datasets.
-
 3.	STAR alignment
 Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter).
 ```
@@ -981,9 +838,12 @@ module load Bioinformatics
 module load stringtie
 stringtie -o stringtie-SRA#.gtf Aligned.out.bam
 ```
-
-b.	Trinity
-Trinity (v2.15.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows: 
+The output gtf-file was converted to a fasta-file for subsequent BLAST searches (described under ‘Sequenceserver-based BLAST search and burpitide prediction’ or ‘Commandline-PHI-BLAST search and burpitide prediction’) with gffread. Install gffread as specified under https://github.com/gpertea/gffread. Run gffread conversion of gtf.file to fasta.file with command:
+```
+gffread -w stringtie-SRA#.fa -g /path-to-directory/stringtie-SRA#.gtf
+```
+b. Trinity
+Trinity (v2.15.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows:  
 ```
 #!/bin/bash
 #SBATCH --job-name=trinity
