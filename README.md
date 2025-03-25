@@ -302,9 +302,8 @@ for i in *fa; do n="${i%.fa}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
 cat *fa
 sed -i 's/len.*]/ /g' *.fa
 ```
-2. Sequenceserver search and search-hit.fasta download
-
-For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.16.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
+**2. Sequenceserver search and search-hit.fasta download**
+- For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.16.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
 ```
 >AAB66369.1 Sali3-2 [Glycine max]
 MEFRCSVISFTILFSLALAGESHVHASLPEEDYWEAVWPNTPIPTALRDVLKPLPAGVEIDQLPKQIDDT
@@ -312,10 +311,8 @@ QYPKTFFYKEDLHPGKTMKVQFTKRPYAQPYGVYTWLTDIKDTSKEGYSFEEICIKKEAFEGEEKFCAKS
 LGTVIGFAISKLGKNIQVLSSSFVNKQEQYTVEGVQNLGDKAVMCHGLNFRTAVFYCHKVRETTAFVVPL
 VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
 ```
-
-3. Orfipy
-
-Search hits from Sequenceserver were 6-frame translated with orfipy with 450 bp minimum open reading frames due to the size of the target BURP protein domain of >200 amino acids (>600 bp).
+**3. Orfipy**
+- Search hits from Sequenceserver were 6-frame translated with orfipy with 450 bp minimum open reading frames due to the size of the target BURP protein domain of >200 amino acids (>600 bp).
 ```
 #!/bin/bash
 #SBATCH --job-name=orfipy
@@ -331,12 +328,9 @@ Search hits from Sequenceserver were 6-frame translated with orfipy with 450 bp 
 #SBATCH --output=./orfipy-%j
 orfipy --pep sequenceserver-hits.pep --min 450 --between-stops sequenceserver-hits.fasta
 ```
+**4. RepeatFinder analysis** - *RepeatFinder was run as a standalone version on a computational cluster.*
 
-4. RepeatFinder analysis
-
-RepeatFinder was run as a standalone version on a computational cluster.
-
-      Install RepeatFinder:
+  Install RepeatFinder:
 ```
 git clone https://github.com/FlorisdeWaal/repeatfinder_standalone
 ```
