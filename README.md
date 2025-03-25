@@ -140,8 +140,7 @@ MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
 ```
 # Transcriptome assembly – multiple datasets
 **1. Batch SRA-download**
-
-For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
+- For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
 ```
 #!/bin/bash
 #SBATCH --job-name=sra-download          
@@ -163,10 +162,8 @@ cat SRA.txt |parallel -j 10 xargs -n 25 -P 0 fasterq-dump --split-files --outdir
 wait
 printf "\n...done\n\n"
 ```
-
-2. Batch trimming
-
-Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
+**2. Batch trimming**
+- Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
 ```
 mkdir
 input_data_1
@@ -175,15 +172,15 @@ input_data_1
 mkdir
 input_data_2
 ```
-Move fwd reads to input_data_1/ directory:
+- Move fwd reads to input_data_1/ directory:
 ```
 mv *_1.fastq /path/to/input_data_1/
 ```
-Move rev reads to input_data_2/ directory:
+- Move rev reads to input_data_2/ directory:
 ```
 mv *_2.fastq /path/to/input_data_2/
 ```
-Run batch TrimGalore-trimming script:
+- Run batch TrimGalore-trimming script:
 ```
 #!/bin/bash
 #SBATCH --job-name=trimgalore
@@ -204,17 +201,15 @@ file1=$(ls ./input_data_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 trim_galore --cores 4 --paired ./input_data_1/${file1} ./input_data_2/${file2}
 ```
-
-3. Batch transcriptome assembly (SPAdes)
-
-Generate directories for trimmed fwd reads and trimmed rev reads of NCBI SRA fastq-files:
+**3. Batch transcriptome assembly (SPAdes)**
+- Generate directories for trimmed fwd reads and trimmed rev reads of NCBI SRA fastq-files:
 ```
 mkdir input_data_trimmed_1
 ```
 ```
 mkdir input_data_trimmed_2
 ```
-Move trimmed fwd reads to input_data_trimmed_1/ directory:
+- Move trimmed fwd reads to input_data_trimmed_1/ directory:
 ```
 mv *_1.fq /path/to/input_data_trimmed_1/
 ```
