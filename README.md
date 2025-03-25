@@ -61,7 +61,7 @@ module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
 **3. Transcriptome assembly** - Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
-  **a. SPAdes – paired-end datasets**
+- **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
 #SBATCH --job-name=SPAdes
@@ -81,8 +81,7 @@ spades.py --rna -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o spades_SRA#
 cd spades_SRA#
 mv transcripts.fasta spades_SRA#.fasta
 ```
-
-      b. SPAdes – single-end datasets
+- **b. SPAdes – single-end datasets**
 ```
 #!/bin/bash
 #SBATCH --job-name=SPAdes
