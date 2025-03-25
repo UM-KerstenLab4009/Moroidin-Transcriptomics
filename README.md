@@ -6,7 +6,7 @@
 - **seqkit v2.3.0**: https://github.com/shenwei356/seqkit/releases
 - **orfipy v0.0.4**: https://github.com/urmi-21/orfipy
 - **spades v3.15.5**: https://github.com/ablab/spades
-- **trinity v2.15.5**: https://github.com/trinityrnaseq/trinityrnaseq
+- **trinity v2.15.1**: https://github.com/trinityrnaseq/trinityrnaseq
 - **megahit v1.2.9**: https://github.com/voutcn/megahit
 - **blast-plus v2.16.0**: https://github.com/ncbi/blast_plus_docs
 - **stringtie v2.2.1**: https://github.com/gpertea/stringtie
@@ -781,7 +781,7 @@ nano phi_pattern.txt
 ```
 PA QQLLVW
 ```
-**c. Run PHI-BLAST**
+- **c. Run PHI-BLAST**
 - The following script was run for PHI-BLAST of the unassembled BLAST databases:
 ```
 #!/bin/bash
@@ -806,8 +806,8 @@ psiblast -db ./100/small_100_aa.pep_db -query query.faa -out small_100_aa.pep_db
 # Seqkit-grep search of QLLVW motifs in unassembled data
 *Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:*
 
-**a.  Seqkit-grep-QLLVW-search**
-- Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command. unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
+- **a.  Seqkit-grep-QLLVW-search**
+  - Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command. unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
 ```
 #!/bin/bash
 #SBATCH --job-name=seqkit-grep-QLLVW
@@ -826,8 +826,8 @@ module load seqkit
 awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
 seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
 ```
-**b. Extract SRA codes and count QLLVW reads per SRA code**
-- SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
+- **b. Extract SRA codes and count QLLVW reads per SRA code**
+  - SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
 ```
 #!/bin/bash
 #SBATCH --job-name=SRA-codes
