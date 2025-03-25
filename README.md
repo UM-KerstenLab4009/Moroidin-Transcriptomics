@@ -1,30 +1,18 @@
 # Moroidin-Transcriptomics
 
 **Softwares** 
-- sratoolkit v2.10.9:  https://github.com/ncbi/sra-tools 
-
-trimgalore v0.6.7: https://github.com/FelixKrueger/TrimGalore
-
-seqkit v2.3.0: https://github.com/shenwei356/seqkit/releases
-
-orfipy v0.0.4: https://github.com/urmi-21/orfipy
-
-spades v3.15.5: https://github.com/ablab/spades
-
-trinity v2.15.5: https://github.com/trinityrnaseq/trinityrnaseq
-
-megahit v1.2.9: https://github.com/voutcn/megahit
-
-blast-plus v2.16.0: https://github.com/ncbi/blast_plus_docs
-
-stringtie v2.2.1: https://github.com/gpertea/stringtie
-
-samtools v1.21: https://github.com/samtools/samtools
-
-star v2.7.11a: https://github.com/alexdobin/STAR
-
-gffread v0.12.7: https://github.com/gpertea/gffread
-
+- **sratoolkit v2.10.9**:  https://github.com/ncbi/sra-tools
+- **trimgalore v0.6.7**: https://github.com/FelixKrueger/TrimGalore
+- **seqkit v2.3.0**: https://github.com/shenwei356/seqkit/releases
+- **orfipy v0.0.4**: https://github.com/urmi-21/orfipy
+- **spades v3.15.5**: https://github.com/ablab/spades
+- **trinity v2.15.5**: https://github.com/trinityrnaseq/trinityrnaseq
+- **megahit v1.2.9**: https://github.com/voutcn/megahit
+- **blast-plus v2.16.0**: https://github.com/ncbi/blast_plus_docs
+- **stringtie v2.2.1**: https://github.com/gpertea/stringtie
+- **samtools v1.21**: https://github.com/samtools/samtools
+- **star v2.7.11a**: https://github.com/alexdobin/STAR
+- **gffread v0.12.7**: https://github.com/gpertea/gffread
 The following scripts were submitted to a high performance computing cluster via SLURM.
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
