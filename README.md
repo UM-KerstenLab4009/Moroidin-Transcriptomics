@@ -28,7 +28,7 @@ gffread v0.12.7: https://github.com/gpertea/gffread
 The following scripts were submitted to a computational cluster via SLURM.
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled data
-Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
+Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
 1. SRA-download – see transcriptome assembly
 Raw RNA-seq datasets were downloaded as described under SRA download with sratoolkit (v2.10.9). 100 RNA-seq datasets were downloaded per directory with a total number of 11 directories.
 2. Trimming
