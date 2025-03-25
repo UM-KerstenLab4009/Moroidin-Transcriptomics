@@ -427,8 +427,10 @@ seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 # Genome-guided transcriptome assembly
 **1.	SRA-download**   
 - Download SRA RNA-seq datasets as specified above for single datasets.
+  
 **2. Trimming**
 - Trim RNA-seq datasets as specified above for single datasets.
+  
 **3.	STAR alignment**
 - Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific      repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify    the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter).
 ```
@@ -449,9 +451,9 @@ module load star/2.7.11a-hdp2onj
 STAR --runThreadN 7 --runMode genomeGenerate --genomeDir /path-to-directory/ --genomeFastaFiles ./genomic.fasta --sjdbGTFfile ./genome.gtf --sjdbOverhang 150
 ```
 - For large genomes, more memory might be required for STAR alignment. For example, STAR alignment of the wheat genome (16 Gbp) required 422 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 139 GB memory.
+  
 **4. STAR mapping**
-
-   The following script was used for STAR mapping of paired-ended trimmed RNA-seq datasets:
+- The following script was used for STAR mapping of paired-ended trimmed RNA-seq datasets:
 ```
 #!/bin/bash
 #SBATCH --job-name=star-map
@@ -469,11 +471,10 @@ module load Bioinformatics
 module load star/2.7.11a-hdp2onj
 STAR --runThreadN 7 --runMode alignReads --genomeDir /path-to-directory/ --readFilesIn ./SRA#_1_val_1.fq ./SRA#_2_val_2.fq
 ```
-         The resulting output files include an Aligned.out.sam file. For large genomes, more memory might be required for STAR mapping. For example, STAR mapping of the              wheat genome (16 Gbp) required 163 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 63 GB memory.
+- The resulting output files include an Aligned.out.sam file. For large genomes, more memory might be required for STAR mapping. For example, STAR mapping of the wheat genome (16 Gbp) required 163 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 63 GB memory.
 
-5.	BAM file generation
-
-   The following script formats the Aligned.out.sam file to an Aligned.out.bam which can be used as an input file for StringTie assembly.
+**5.	BAM file generation**
+- The following script formats the Aligned.out.sam file to an Aligned.out.bam which can be used as an input file for StringTie assembly.
 ```
 #!/bin/bash
 #SBATCH --job-name=samtools
@@ -492,7 +493,7 @@ module load samtools/1.21
 samtools sort -o Aligned.out.bam Aligned.out.sam
 ```
 
-6.	Transcriptome assembly
+**6. Transcriptome assembly**
 
       a.	StringTie
 
