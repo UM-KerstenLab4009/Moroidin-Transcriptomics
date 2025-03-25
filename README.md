@@ -29,7 +29,8 @@ The following scripts were submitted to a high performance computing cluster via
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
 Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
-1. SRA-download
+
+1. **SRA-download**
 
    Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were
    downloaded per directory with a total number of 11 directories.
