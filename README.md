@@ -62,7 +62,7 @@ trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
 **3. Transcriptome assembly** - Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
 
-**a. SPAdes – paired-end datasets**
+  **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
 #SBATCH --job-name=SPAdes
