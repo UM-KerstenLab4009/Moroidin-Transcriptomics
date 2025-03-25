@@ -19,7 +19,7 @@ The following scripts were submitted to a high performance computing cluster via
 # Transcriptome assembly – single dataset
 **1. SRA-download**
     
-    -Configure your cluster for sratools commands by running the command:
+  -Configure your cluster for sratools commands by running the command:
 ```
 ./vdb-config -i
 ```
