@@ -421,7 +421,7 @@ psiblast -db cleaned_all_db -query query.faa -out cleaned_all_phiblast.txt -phi_
 grep ">" cleaned_all_phiblast.txt | awk '{print $1}' | tr -d '>' > hits.txt
 seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 ```
-    - For searching other core peptide motifs, please change the phi_pattern.txt file according to the ___ manual and use a query burpitide cyclase protein sequence which includes the target core peptide motif.
+  - For searching other core peptide motifs, please change the phi_pattern.txt file according to the ___ manual and use a query burpitide cyclase protein sequence which includes the target core peptide motif.
 
 
 # Genome-guided transcriptome assembly
