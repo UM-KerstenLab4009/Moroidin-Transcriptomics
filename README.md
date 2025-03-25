@@ -25,7 +25,7 @@ star v2.7.11a: https://github.com/alexdobin/STAR
 
 gffread v0.12.7: https://github.com/gpertea/gffread
 
-The following scripts were submitted to a computational cluster via SLURM.
+The following scripts were submitted to a high performance computing cluster via SLURM.
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled data
 Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
