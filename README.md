@@ -1,8 +1,7 @@
 # Moroidin-Transcriptomics
 
 **Softwares** 
-
-      - sratoolkit v2.10.9:  https://github.com/ncbi/sra-tools 
+- sratoolkit v2.10.9:  https://github.com/ncbi/sra-tools 
 
 trimgalore v0.6.7: https://github.com/FelixKrueger/TrimGalore
 
