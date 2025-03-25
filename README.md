@@ -39,8 +39,8 @@ Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin
 3. Combine paired reads
   
    To reduce file size, paired-end reads were combined into one file.
-```
 # a. Generate directories for fwd reads
+```
 mkdir input_data_1
 mkdir input_data_2
 ```
