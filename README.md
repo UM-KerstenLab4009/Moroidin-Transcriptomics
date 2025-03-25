@@ -60,7 +60,7 @@ module load Bioinformatics
 module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
-**3. Transcriptome assembly** - Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
+**3. Transcriptome assembly** **- Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
 - **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
@@ -121,8 +121,7 @@ LOG_FILE="trinity_log.txt"
 TRINITY_PARAMS="--SS_lib_type RF --max_memory 180G --CPU 8 --trimmomatic --seqType fq --left SRA#_1_val_1.fq --right SRA#_2_val_2.fq --min_glue 2 --min_kmer_cov 1 --full_cleanup --no_normalize_reads" 
 Trinity $TRINITY_PARAMS
 ```
-
-      d. MEGAHIT
+- **d. MEGAHIT**
 ```
 #!/bin/bash
 #SBATCH --job-name=megahit
