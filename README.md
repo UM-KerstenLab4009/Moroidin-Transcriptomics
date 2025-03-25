@@ -32,8 +32,10 @@ Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin
 1. SRA-download
 
    Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were
-                   downloaded per directory with a total number of 11 directories.
-3. Trimming -     Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
+   downloaded per directory with a total number of 11 directories.
+2. Trimming
+
+   Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
 4. Combine paired reads - To reduce file size, paired-end reads were combined into one file with the following commands:
 ```
 mkdir input_data_1
