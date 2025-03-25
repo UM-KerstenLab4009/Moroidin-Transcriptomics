@@ -22,7 +22,7 @@ The following scripts were submitted to a high performance computing cluster via
 ```
 ./vdb-config -i
 ```
-Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
+- Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
 ```
 #!/bin/bash
 #SBATCH --job-name=sra-download
@@ -41,7 +41,7 @@ module load Bioinformatics
 module load sratoolkit/2.10.9-udmejx7
 fasterq-dump SRR8782583 --split-files
 ```
-2. Trimming
+**2. Trimming**
 
 To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
 ```
