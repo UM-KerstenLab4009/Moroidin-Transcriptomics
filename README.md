@@ -241,9 +241,7 @@ cd spades_$file1
 mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
 ```
 # Sequenceserver-based BLAST search and burpitide prediction
-1. BLAST database formatting
-
-Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.
+**1. BLAST database formatting** *Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.*
 
       a. SPAdes
 ```
