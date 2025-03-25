@@ -329,22 +329,20 @@ VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
 orfipy --pep sequenceserver-hits.pep --min 450 --between-stops sequenceserver-hits.fasta
 ```
 **4. RepeatFinder analysis** - *RepeatFinder was run as a standalone version on a computational cluster.*
-
-  Install RepeatFinder:
+- Install RepeatFinder:
 ```
 git clone https://github.com/FlorisdeWaal/repeatfinder_standalone
 ```
-      Copy sequenceserver-hits.pep file into the standalone directory:
+- Copy sequenceserver-hits.pep file into the standalone directory:
 ```
 cd repeatfinder_standalone/
 cp /your-directory/sequenceserver-hits.pep .
 ```
-      Run RepeatFinder via python2:
+- Run RepeatFinder via python2:
 ```
 python2 run_rf.py -i sequenceserver-hits.pep -o sequenceserver-hits.html
 ```
-      The resulting html-file includes predicted stephanotic acid-type burpitide cyclases based on the ‘QLxxW’ motif 
-      assignment. To search for other core peptide patterns, open the file known_motifs.txt in the repeatfinder_standalone/ directory:
+- The resulting html-file includes predicted stephanotic acid-type burpitide cyclases based on the ‘QLxxW’ motif assignment. To search for other core peptide patterns, open the file known_motifs.txt in the repeatfinder_standalone/ directory:
 ```
 nano known_motifs.txt
 ```
