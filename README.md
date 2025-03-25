@@ -29,11 +29,11 @@ The following scripts were submitted to a high performance computing cluster via
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
 Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
-1. SRA-download (see transcriptome assembly)
-Raw RNA-seq datasets were downloaded as described under SRA download with sratoolkit (v2.10.9). 100 RNA-seq datasets were downloaded per directory with a total number of 11 directories.
+1. SRA-download | 
+Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were downloaded per directory with a total number of 11 directories.
 2. Trimming | 
 Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
-3. Combine paired reads
+3. Combine paired reads |
 To reduce file size, paired-end reads were combined into one file with the following commands:
 ```
 mkdir input_data_1
@@ -70,15 +70,15 @@ file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
 ```
 
-4. Seqkit-remove duplicates
-Seqkit (v 2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.
+4. Seqkit-remove duplicates |
+Seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.
 
-a. Generate directory for combined trimmed reads of NCBI SRA fastq-files.
+    a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:
 ```
 mkdir input_data_rmdup
 ```
 
-b. Move combined trimmed reads to input_data directory
+b. Move combined trimmed reads to input_data directory:
 ```
 mv *.fastq > input_data_rmdup
 ```
