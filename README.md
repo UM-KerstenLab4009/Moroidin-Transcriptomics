@@ -494,10 +494,8 @@ samtools sort -o Aligned.out.bam Aligned.out.sam
 ```
 
 **6. Transcriptome assembly**
-
-      a.	StringTie
-
-         StringTie (v2.2.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows:
+- **a. StringTie**
+  - StringTie (v2.2.1) was applied for genome-guided transcriptome assembly with the Aligned.out.bam file as follows:
 ```
 #!/bin/bash
 #SBATCH --job-name=stringtie
