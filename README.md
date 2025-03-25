@@ -213,11 +213,11 @@ mkdir input_data_trimmed_2
 ```
 mv *_1.fq /path/to/input_data_trimmed_1/
 ```
-Move trimmed rev reads to input_data_trimmed_2/ directory:
+- Move trimmed rev reads to input_data_trimmed_2/ directory:
 ```
 mv *_2.fq /path/to/input_data_trimmed_2/
 ```
-Run SPAdes batch assembly:
+- Run SPAdes batch assembly:
 ```
 #!/bin/bash
 #SBATCH --job-name=SPAdes
@@ -240,7 +240,6 @@ spades.py --rna -1 ./input_data_trimmed_1/${file1} -2 ./input_data_trimmed_2/${f
 cd spades_$file1
 mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
 ```
-
 # Sequenceserver-based BLAST search and burpitide prediction
 1. BLAST database formatting
 
