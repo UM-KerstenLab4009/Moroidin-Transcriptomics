@@ -16,345 +16,9 @@
   
 The following scripts were submitted to a high performance computing cluster via SLURM.
 
-# PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
-Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
-
-1. **SRA-download**
-      - Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were
-   downloaded per directory with a total number of 11 directories.
-3. Trimming
-
-   Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
-4. Combine paired reads
-  
-   To reduce file size, paired-end reads were combined into one file.
-
-   Generate directories for fwd reads
-```
-mkdir input_data_1
-mkdir input_data_2
-```
-   Move fwd reads to input_data_1/ directory:
-```
-mv *_1.fq /path/to/input_data_1/
-```
-   Move rev reads to input_data_2/ directory:
-```
-mv *_2.fq /path/to/input_data_2/
-```
-
-   Combine paired-end fastq files (example script for 100 paired-end files): 
-```
-#!/bin/bash
-#SBATCH --job-name=cat-fastq
-#SBATCH --account=your_account
-#SBATCH --partition=standard
-#SBATCH --array=1-100
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=02:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./cat-%j
-file1=$(ls ./input_data_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
-```
-
-4. Remove duplicate reads with seqkit2
-
-The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.
-
-4a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:
-```
-mkdir input_data_rmdup
-```
-
-4b. Move combined trimmed reads to input_data directory:
-```
-mv *.fastq > input_data_rmdup
-```
-
-      c. Run the following script to remove duplicates:
-```
-#!/bin/bash
-#SBATCH --job-name=remove-duplicates
-#SBATCH --account=your_account
-#SBATCH --partition=standard
-#SBATCH --array=1-100 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=01:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./rmdup-%j
-module load Bioinformatics
-module load seqkit
-file1=$(ls ./input_data/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-seqkit rmdup -s ./input_data/${file1} -o ./${file1}
-```
-
-5. Seqkit-fastq-to-fasta-conversion
-
-The seqkit2 (v2.3.0) fastq-to-fasta command was used to convert fastq reads to fasta format.
-      a. Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
-```
-mkdir input_data_fq2fa
-```
-
-      b. Move fastq reads to input_data/ directory:
-```
-mv *.fq input_data_fq2fa/
-```
-
-      c. Run batch seqkit-fq2fa script:
-```
-#!/bin/bash
-#SBATCH --job-name=fastq2fasta
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --array=1-100 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=01:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./fq2fa-%j
-module load Bioinformatics
-module load seqkit
-file1=$(ls ./input_data_fq2fa/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-seqkit fq2fa ./input_data_fq2fa/${file1} -o ./${file1}.fasta
-```
-
-6. Combine fasta files
-
-Fasta files were combined in one directory (usually 100 fasta files were combined) to a single file.
-```
-#!/bin/bash
-#SBATCH --job-name=cat-fasta
-#SBATCH --account=rkersten1
-#SBATCH --partition=standard
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=02:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./cat-%j
-cat *.fasta > unassembled_data.fasta
-```
-
-7. Fasta header truncation
-
-To reduce the size of the unassembled data fasta file in one directory, fasta headers in the file were reduced with the following script:
-```
-#!/bin/bash
-#SBATCH --job-name=cleaning-fasta
-#SBATCH --account=your_account                                    
-#SBATCH --partition=standard 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=rkersten@umich.edu
-#SBATCH --mail-type=END
-#SBATCH --output=./cleaning-%j
-module load Bioinformatics
-awk '/^>/ {print $1; next} {print}' unassembled_data.fasta > cleaned_unassembled_data.fasta
-```
-
-8. 6-frame translation with orfipy
-
-The unassembled RNA-seq read fasta file was translated in 6 frames with orfipy (v0.0.4). The minimum bp length was set to 90 bp to include short read lengths in the raw RNA-seq data search. The resulting minimum protein sequence length was 30 amino acids which is the recommended minimum input length for PHI-BLAST.
-
-Install orfipy:
-```
-pip install orfipy
-```
-```
-#!/bin/bash
-#SBATCH --job-name=orfipy
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./orfipy-%j
-orfipy --pep unassembled_data.pep --min 90 --between-stops cleaned_unassembled_data.fasta
-```
-Move the pep file to the original directory:
-```
-mv ./orfipy_cleaned_unassembled_data.fasta_out/unassembled_data.pep .
-```
-
-9. Generation of BLAST database
-    
-      a. Split fasta file
-
-         To generate a searchable BLAST database from the large unassembled data, the final fasta file was split into files of 1000000000 lines (~60GB).
-```
-#!/bin/bash
-#SBATCH --job-name=split
-#SBATCH --account=your_account
-#SBATCH --partition=standard
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --time=12:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./split-%j
-split -l 1000000000 unassembled_data.pep small_unassembled_
-```
-         Resulting files were formatted to a .pep file.
-
-      b. Makeblastdb
-
-         An input_data directory was created:
-```
-mkdir input_data
-```
-         and split pep. files were moved to the input_data directory.
-```
-mv small* input_data/ 
-```
-         BLAST databases of the corresponding split pep. files were generated with the following script:
-```
-#!/bin/bash
-#SBATCH --job-name=makeblastdb
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --array=1-(number of .pep files in input_data/)
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./phiblast-%j
-module load Bioinformatics
-module load blast-plus/2.16.0
-file1=$(ls ./input_data/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
-makeblastdb -in ./input_data800/${file1} -dbtype prot -out ${file1}_db
-```
-
-10. PHI-BLAST search
-
-      a. Generate a query file:
-```
-touch query.faa
-```
-         open the query.faa file:
-```
-nano query.faa
-```
-         and copy KjaBURP protein sequence into it:
-```
->QIG55799.1 BURP domain protein [Kerria japonica]
-MACRLSLIFAFLCLTLVACHAALSPQEVYWNSVFPQTPMPKTLSALVQPAAKNFIRYKKVDDGQTQDIDV
-AADNQLLVWRGHVAIDDDAAADNQLLVWRGHVAIDDDDAAADNQLLVWRGHVAIHDDAAADNQLLVWRAH 
-VANDDVDARNLLRKDPSRVLVFLEKDVHPGKTMKYSLIRSLPKSATFLPRNTAESIPFSSSKLLEILIQF 
-SVQPKSVEANAMTEAILKCEVPAMRGEAKYCATSLESMIDFVTSRLGRNIRAISTEVEEGATHVQNYTIY 
-HGVKKLTDKKVITCHRLRYPYVVFYCHELENTSIYMVPLKGADGTNAKAITTCHEDTSEWDPKSFVLQLL 
-KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
-```
-
-      b. Generate a phi_pattern.txt file:
-```
-touch phi_pattern.txt
-```
-         open the phi_pattern.txt file:
-```
-nano phi_pattern.txt
-```
-         and copy the stephanotic acid QLLVW phi_pattern into it. The additional Q is required for successful PHI-BLAST search of the QLLVW motif.
-```
-PA QQLLVW
-```
-      c. Run PHI-BLAST
-
-         The following script was run for PHI-BLAST of the unassembled BLAST databases:
-```
-#!/bin/bash
-#SBATCH --job-name=phiblast-QLLVW-all-1
-#SBATCH --account=your_account
-#SBATCH --partition=standard
-#SBATCH --array=1 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./phiblast-%j
-module load Bioinformatics
-module load blast-plus/2.16.0
-psiblast -db ./100/small_100_aa.pep_db -query query.faa -out small_100_aa.pep_db_phiblast.txt -phi_pattern phi_pattern.txt
-```
-phiblast.txt were analyzed by RepeatFinder for SRA datasets with KjaBURP search hits with QLLVW core peptides.
-
-# Seqkit-grep search of QLLVW motifs in unassembled data
-Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
-      a.  Seqkit-grep-QLLVW-search
-
-         Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command.       
-         unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
-```
-#!/bin/bash
-#SBATCH --job-name=seqkit-grep-QLLVW
-#SBATCH --account=your_account
-#SBATCH --partition=standard 
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=7
-#SBATCH --time=24:00:00
-#SBATCH --mem=48g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./seqkit-QLLVW-%j
-module load Bioinformatics
-module load seqkit
-awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
-seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
-```
-      b. Extract SRA codes and count QLLVW reads per SRA code
-
-         SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
-```
-#!/bin/bash
-#SBATCH --job-name=SRA-codes
-#SBATCH --account=your_account
-#SBATCH --partition=standard
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=01:00:00
-#SBATCH --mem=7g
-#SBATCH --mail-user=your@email.com
-#SBATCH --mail-type=END
-#SBATCH --output=./sra-extract-%j
-awk '/^>/ { split($1, a, "."); print substr(a[1], 2) }' seqkit_grep_hits.pep | sort | uniq -c > seqkit_grep_hits_sra_codes.txt
-```
-
 # Transcriptome assembly – single dataset
-1. SRA-download
-
-Configure your cluster for sratools commands by running the command:
+**1. SRA-download**
+- Configure your cluster for sratools commands by running the command:
 ```
 ./vdb-config -i
 ```
@@ -911,4 +575,339 @@ module load trinity/2.15.1
 LOG_FILE="trinity_log.txt"
 TRINITY_PARAMS="--SS_lib_type RF --max_memory 48G --CPU 8 --genome_guided_bam Aligned.out.bam --genome_guided_max_intron 50000 --output trinity-SRA#" 
 Trinity $TRINITY_PARAMS
+```
+
+# PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
+Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:
+
+1. **SRA-download**
+      - Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were
+   downloaded per directory with a total number of 11 directories.
+3. Trimming
+
+   Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
+4. Combine paired reads
+  
+   To reduce file size, paired-end reads were combined into one file.
+
+   Generate directories for fwd reads
+```
+mkdir input_data_1
+mkdir input_data_2
+```
+   Move fwd reads to input_data_1/ directory:
+```
+mv *_1.fq /path/to/input_data_1/
+```
+   Move rev reads to input_data_2/ directory:
+```
+mv *_2.fq /path/to/input_data_2/
+```
+
+   Combine paired-end fastq files (example script for 100 paired-end files): 
+```
+#!/bin/bash
+#SBATCH --job-name=cat-fastq
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --array=1-100
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./cat-%j
+file1=$(ls ./input_data_1/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
+```
+
+4. Remove duplicate reads with seqkit2
+
+The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.
+
+4a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:
+```
+mkdir input_data_rmdup
+```
+
+4b. Move combined trimmed reads to input_data directory:
+```
+mv *.fastq > input_data_rmdup
+```
+
+      c. Run the following script to remove duplicates:
+```
+#!/bin/bash
+#SBATCH --job-name=remove-duplicates
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --array=1-100 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=01:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./rmdup-%j
+module load Bioinformatics
+module load seqkit
+file1=$(ls ./input_data/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+seqkit rmdup -s ./input_data/${file1} -o ./${file1}
+```
+
+5. Seqkit-fastq-to-fasta-conversion
+
+The seqkit2 (v2.3.0) fastq-to-fasta command was used to convert fastq reads to fasta format.
+      a. Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
+```
+mkdir input_data_fq2fa
+```
+
+      b. Move fastq reads to input_data/ directory:
+```
+mv *.fq input_data_fq2fa/
+```
+
+      c. Run batch seqkit-fq2fa script:
+```
+#!/bin/bash
+#SBATCH --job-name=fastq2fasta
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --array=1-100 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=01:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./fq2fa-%j
+module load Bioinformatics
+module load seqkit
+file1=$(ls ./input_data_fq2fa/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+seqkit fq2fa ./input_data_fq2fa/${file1} -o ./${file1}.fasta
+```
+
+6. Combine fasta files
+
+Fasta files were combined in one directory (usually 100 fasta files were combined) to a single file.
+```
+#!/bin/bash
+#SBATCH --job-name=cat-fasta
+#SBATCH --account=rkersten1
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./cat-%j
+cat *.fasta > unassembled_data.fasta
+```
+
+7. Fasta header truncation
+
+To reduce the size of the unassembled data fasta file in one directory, fasta headers in the file were reduced with the following script:
+```
+#!/bin/bash
+#SBATCH --job-name=cleaning-fasta
+#SBATCH --account=your_account                                    
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=rkersten@umich.edu
+#SBATCH --mail-type=END
+#SBATCH --output=./cleaning-%j
+module load Bioinformatics
+awk '/^>/ {print $1; next} {print}' unassembled_data.fasta > cleaned_unassembled_data.fasta
+```
+
+8. 6-frame translation with orfipy
+
+The unassembled RNA-seq read fasta file was translated in 6 frames with orfipy (v0.0.4). The minimum bp length was set to 90 bp to include short read lengths in the raw RNA-seq data search. The resulting minimum protein sequence length was 30 amino acids which is the recommended minimum input length for PHI-BLAST.
+
+Install orfipy:
+```
+pip install orfipy
+```
+```
+#!/bin/bash
+#SBATCH --job-name=orfipy
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./orfipy-%j
+orfipy --pep unassembled_data.pep --min 90 --between-stops cleaned_unassembled_data.fasta
+```
+Move the pep file to the original directory:
+```
+mv ./orfipy_cleaned_unassembled_data.fasta_out/unassembled_data.pep .
+```
+
+9. Generation of BLAST database
+    
+      a. Split fasta file
+
+         To generate a searchable BLAST database from the large unassembled data, the final fasta file was split into files of 1000000000 lines (~60GB).
+```
+#!/bin/bash
+#SBATCH --job-name=split
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=12:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./split-%j
+split -l 1000000000 unassembled_data.pep small_unassembled_
+```
+         Resulting files were formatted to a .pep file.
+
+      b. Makeblastdb
+
+         An input_data directory was created:
+```
+mkdir input_data
+```
+         and split pep. files were moved to the input_data directory.
+```
+mv small* input_data/ 
+```
+         BLAST databases of the corresponding split pep. files were generated with the following script:
+```
+#!/bin/bash
+#SBATCH --job-name=makeblastdb
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --array=1-(number of .pep files in input_data/)
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./phiblast-%j
+module load Bioinformatics
+module load blast-plus/2.16.0
+file1=$(ls ./input_data/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
+makeblastdb -in ./input_data800/${file1} -dbtype prot -out ${file1}_db
+```
+
+10. PHI-BLAST search
+
+      a. Generate a query file:
+```
+touch query.faa
+```
+         open the query.faa file:
+```
+nano query.faa
+```
+         and copy KjaBURP protein sequence into it:
+```
+>QIG55799.1 BURP domain protein [Kerria japonica]
+MACRLSLIFAFLCLTLVACHAALSPQEVYWNSVFPQTPMPKTLSALVQPAAKNFIRYKKVDDGQTQDIDV
+AADNQLLVWRGHVAIDDDAAADNQLLVWRGHVAIDDDDAAADNQLLVWRGHVAIHDDAAADNQLLVWRAH 
+VANDDVDARNLLRKDPSRVLVFLEKDVHPGKTMKYSLIRSLPKSATFLPRNTAESIPFSSSKLLEILIQF 
+SVQPKSVEANAMTEAILKCEVPAMRGEAKYCATSLESMIDFVTSRLGRNIRAISTEVEEGATHVQNYTIY 
+HGVKKLTDKKVITCHRLRYPYVVFYCHELENTSIYMVPLKGADGTNAKAITTCHEDTSEWDPKSFVLQLL 
+KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
+```
+
+      b. Generate a phi_pattern.txt file:
+```
+touch phi_pattern.txt
+```
+         open the phi_pattern.txt file:
+```
+nano phi_pattern.txt
+```
+         and copy the stephanotic acid QLLVW phi_pattern into it. The additional Q is required for successful PHI-BLAST search of the QLLVW motif.
+```
+PA QQLLVW
+```
+      c. Run PHI-BLAST
+
+         The following script was run for PHI-BLAST of the unassembled BLAST databases:
+```
+#!/bin/bash
+#SBATCH --job-name=phiblast-QLLVW-all-1
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --array=1 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./phiblast-%j
+module load Bioinformatics
+module load blast-plus/2.16.0
+psiblast -db ./100/small_100_aa.pep_db -query query.faa -out small_100_aa.pep_db_phiblast.txt -phi_pattern phi_pattern.txt
+```
+phiblast.txt were analyzed by RepeatFinder for SRA datasets with KjaBURP search hits with QLLVW core peptides.
+
+# Seqkit-grep search of QLLVW motifs in unassembled data
+Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
+      a.  Seqkit-grep-QLLVW-search
+
+         Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command.       
+         unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
+```
+#!/bin/bash
+#SBATCH --job-name=seqkit-grep-QLLVW
+#SBATCH --account=your_account
+#SBATCH --partition=standard 
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=7
+#SBATCH --time=24:00:00
+#SBATCH --mem=48g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./seqkit-QLLVW-%j
+module load Bioinformatics
+module load seqkit
+awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
+seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
+```
+      b. Extract SRA codes and count QLLVW reads per SRA code
+
+         SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
+```
+#!/bin/bash
+#SBATCH --job-name=SRA-codes
+#SBATCH --account=your_account
+#SBATCH --partition=standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=01:00:00
+#SBATCH --mem=7g
+#SBATCH --mail-user=your@email.com
+#SBATCH --mail-type=END
+#SBATCH --output=./sra-extract-%j
+awk '/^>/ { split($1, a, "."); print substr(a[1], 2) }' seqkit_grep_hits.pep | sort | uniq -c > seqkit_grep_hits_sra_codes.txt
 ```
