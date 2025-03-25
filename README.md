@@ -13,6 +13,7 @@
 - **samtools v1.21**: https://github.com/samtools/samtools
 - **star v2.7.11a**: https://github.com/alexdobin/STAR
 - **gffread v0.12.7**: https://github.com/gpertea/gffread
+  
 The following scripts were submitted to a high performance computing cluster via SLURM.
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data
