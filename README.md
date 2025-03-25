@@ -45,16 +45,16 @@ Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin
 mkdir input_data_1
 mkdir input_data_2
 ```
+   Move fwd reads to input_data_1/ directory:
 ```
-# b. Move fwd reads to input_data_1/ directory:
 mv *_1.fq /path/to/input_data_1/
 ```
+   Move rev reads to input_data_2/ directory:
 ```
-# c. Move rev reads to input_data_2/ directory:
 mv *_2.fq /path/to/input_data_2/
 ```
 
-Combine paired-end fastq files (example script for 100 paired-end files): 
+   Combine paired-end fastq files (example script for 100 paired-end files): 
 ```
 #!/bin/bash
 #SBATCH --job-name=cat-fastq
