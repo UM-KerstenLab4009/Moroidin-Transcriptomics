@@ -704,7 +704,7 @@ mv ./orfipy_cleaned_unassembled_data.fasta_out/unassembled_data.pep .
 
 **9. Generation of BLAST database**
 - **a. Split fasta file**
-  - To generate a searchable BLAST database from the large unassembled data, the final fasta file was split into files of 1000000000 lines (~60GB).
+  - To generate a searchable BLAST database from the large unassembled data, the final fasta file was split into files of 1000000000 lines (~60GB). Resulting files were formatted to a .pep file.
 ```
 #!/bin/bash
 #SBATCH --job-name=split
@@ -720,7 +720,6 @@ mv ./orfipy_cleaned_unassembled_data.fasta_out/unassembled_data.pep .
 #SBATCH --output=./split-%j
 split -l 1000000000 unassembled_data.pep small_unassembled_
 ```
-  - Resulting files were formatted to a .pep file.
 
 - **b. Makeblastdb**
   - An input_data directory was created:
@@ -770,7 +769,7 @@ SVQPKSVEANAMTEAILKCEVPAMRGEAKYCATSLESMIDFVTSRLGRNIRAISTEVEEGATHVQNYTIY
 HGVKKLTDKKVITCHRLRYPYVVFYCHELENTSIYMVPLKGADGTNAKAITTCHEDTSEWDPKSFVLQLL 
 KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
 ```
-**b. Generate a phi_pattern.txt file:**
+- **b. Generate a phi_pattern.txt file:**
 ```
 touch phi_pattern.txt
 ```
@@ -805,11 +804,10 @@ psiblast -db ./100/small_100_aa.pep_db -query query.faa -out small_100_aa.pep_db
 - phiblast.txt were analyzed by RepeatFinder for SRA datasets with KjaBURP search hits with QLLVW core peptides.
 
 # Seqkit-grep search of QLLVW motifs in unassembled data
-Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:
-      a.  Seqkit-grep-QLLVW-search
+*Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:*
 
-         Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command.       
-         unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
+**a.  Seqkit-grep-QLLVW-search**
+- Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command. unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
 ```
 #!/bin/bash
 #SBATCH --job-name=seqkit-grep-QLLVW
@@ -828,9 +826,8 @@ module load seqkit
 awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unassembled_data_search.pep
 seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
 ```
-      b. Extract SRA codes and count QLLVW reads per SRA code
-
-         SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
+**b. Extract SRA codes and count QLLVW reads per SRA code**
+- SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
 ```
 #!/bin/bash
 #SBATCH --job-name=SRA-codes
