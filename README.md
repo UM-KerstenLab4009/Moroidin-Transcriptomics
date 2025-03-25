@@ -366,20 +366,17 @@ QL..W
 ```
 
 # Commandline-PHI-BLAST search and burpitide prediction
-1. Commandline BLAST search
-
-An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly) combined as a single fasta-file.
-
-      a.	Generate transcriptome input file from multiple transcriptome assembly fasta files in a directory:
+**1. Commandline BLAST search**  - *An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly) combined as a single fasta-file.*
+- **a.	Generate transcriptome input file from multiple transcriptome assembly fasta files in a directory:**
 ```
 cat *.fasta > all.fasta
 ```
-      b.	Generate query.faa file:
+- **b.	Generate query.faa file:**
 ```
 touch query.faa
 nano query.faa
 ```
-         Copy target protein sequence (moroidin cyclase KjaBURP), for searching stephanotic acid-type burpitides:
+- **Copy target protein sequence (moroidin cyclase KjaBURP), for searching stephanotic acid-type burpitides:**
 ```
 >QIG55799.1 BURP domain protein [Kerria japonica]
 MACRLSLIFAFLCLTLVACHAALSPQEVYWNSVFPQTPMPKTLSALVQPAAKNFIRYKKVDDGQTQDIDV
@@ -389,18 +386,17 @@ SVQPKSVEANAMTEAILKCEVPAMRGEAKYCATSLESMIDFVTSRLGRNIRAISTEVEEGATHVQNYTIY
 HGVKKLTDKKVITCHRLRYPYVVFYCHELENTSIYMVPLKGADGTNAKAITTCHEDTSEWDPKSFVLQLL 
 KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
 ```
-      c. Generate phi_pattern.txt file:
+- **c. Generate phi_pattern.txt file:**
 ```
 touch phi_pattern.txt
 nano phi_pattern.txt
 ```
-         Add the following text for searching a core peptide ‘QLxxW’ (where x is any proteinogenic amino acid) and save:
+- **Add the following text for searching a core peptide ‘QLxxW’ (where x is any proteinogenic amino acid) and save:**
 ```
 PA QQL-x(2)-W
 ```
-      d. PHI-BLAST search
-
-         Install orfipy before PHI-BLAST search as described above. The same orfipy translation parameters were applied for PHI-BLAST search as for Sequenceserver-based              tblastn search of burpitide cyclase sequences (i.e. minimum of 450 bp open reading frame length, translation between stop codons).
+- **d. PHI-BLAST search**
+  - Install orfipy before PHI-BLAST search as described above. The same orfipy translation parameters were applied for PHI-BLAST search as for Sequenceserver-based              tblastn search of burpitide cyclase sequences (i.e. minimum of 450 bp open reading frame length, translation between stop codons).
 ```
 #!/bin/bash
 #SBATCH --job-name=phiblast-QLxxW
