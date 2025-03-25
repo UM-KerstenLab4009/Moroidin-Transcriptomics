@@ -18,11 +18,11 @@ The following scripts were submitted to a high performance computing cluster via
 
 # Transcriptome assembly – single dataset
 **1. SRA-download**
-- Configure your cluster for sratools commands by running the command:
+  - Configure your cluster for sratools commands by running the command:
 ```
 ./vdb-config -i
 ```
-- Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
+  - Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
 ```
 #!/bin/bash
 #SBATCH --job-name=sra-download
@@ -42,7 +42,7 @@ module load sratoolkit/2.10.9-udmejx7
 fasterq-dump SRR8782583 --split-files
 ```
 **2. Trimming**
-- To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
+  - To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
 ```
 #!/bin/bash
 #SBATCH --job-name=trimgalore
@@ -61,9 +61,8 @@ module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
 **3. Transcriptome assembly**
-- Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
-
-      a. SPAdes – paired-end datasets
+  - Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.
+a. SPAdes – paired-end datasets
 ```
 #!/bin/bash
 #SBATCH --job-name=SPAdes
