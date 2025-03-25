@@ -40,23 +40,23 @@ Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin
   
    To reduce file size, paired-end reads were combined into one file.
 
-a. Generate directories for fwd and rev reads:
+3a. Generate directories for fwd and rev reads:
 ```
 mkdir input_data_1
 mkdir input_data_2
 ```
 
-b. Move fwd reads to input_data_1/ directory:
+3b. Move fwd reads to input_data_1/ directory:
 ```
 mv *_1.fq /path/to/input_data_1/
 ```
 
-c. Move rev reads to input_data_2/ directory:
+3c. Move rev reads to input_data_2/ directory:
 ```
 mv *_2.fq /path/to/input_data_2/
 ```
 
-d. Combine paired-end fastq files (example script for 100 paired-end files): 
+3d. Combine paired-end fastq files (example script for 100 paired-end files): 
 ```
 #!/bin/bash
 #SBATCH --job-name=cat-fastq
@@ -80,12 +80,12 @@ cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
 
 The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.
 
-      a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:
+4a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:
 ```
 mkdir input_data_rmdup
 ```
 
-      b. Move combined trimmed reads to input_data directory:
+4b. Move combined trimmed reads to input_data directory:
 ```
 mv *.fastq > input_data_rmdup
 ```
