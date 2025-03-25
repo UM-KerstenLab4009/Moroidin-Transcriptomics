@@ -60,7 +60,7 @@ module load Bioinformatics
 module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
-**3. Transcriptome assembly** **- Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
+**3. Transcriptome assembly** *Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
 - **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
