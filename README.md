@@ -60,7 +60,7 @@ module load Bioinformatics
 module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
-**3. Transcriptome assembly** *Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
+**3. Transcriptome assembly** - *Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
 - **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
@@ -241,9 +241,8 @@ cd spades_$file1
 mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
 ```
 # Sequenceserver-based BLAST search and burpitide prediction
-**1. BLAST database formatting** *Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.*
-
-      a. SPAdes
+**1. BLAST database formatting** - *Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.*
+- **a. SPAdes**
 ```
 #!/bin/bash
 #SBATCH --job-name=rename
@@ -264,7 +263,7 @@ sed -i 's/_cov//g' *fasta
 sed -i 's/_g//g' *fasta
 sed -i 's/_i//g' *fasta
 ```
-      b. MEGAHIT
+- **b. MEGAHIT**
 ```
 #!/bin/bash
 #SBATCH --job-name=rename
@@ -285,7 +284,7 @@ sed -i 's/ flag=/_/g' *fa
 sed -i 's/ multi=/_/g' *fa
 sed -i 's/ len=/_/g' *fa
 ```
-      c. Trinity
+- **c. Trinity**
 ```
 #!/bin/bash
 #SBATCH --job-name=rename
@@ -303,7 +302,6 @@ for i in *fa; do n="${i%.fa}"; sed -i.bak "s/>[^_]\+/>$n/" $i; done
 cat *fa
 sed -i 's/len.*]/ /g' *.fa
 ```
-
 2. Sequenceserver search and search-hit.fasta download
 
 For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.16.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
