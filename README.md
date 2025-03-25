@@ -782,7 +782,7 @@ nano phi_pattern.txt
 PA QQLLVW
 ```
 - **c. Run PHI-BLAST**
-- The following script was run for PHI-BLAST of the unassembled BLAST databases:
+  - The following script was run for PHI-BLAST of the unassembled BLAST databases:
 ```
 #!/bin/bash
 #SBATCH --job-name=phiblast-QLLVW-all-1
