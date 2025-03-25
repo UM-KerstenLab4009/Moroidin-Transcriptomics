@@ -541,10 +541,13 @@ Trinity $TRINITY_PARAMS
 
 # PHI-BLAST search of KjaBURP and QLLVW motif in unassembled RNA-seq data 
 *Unassembled RNA-seq data was searched by PHI-BLAST (v2.16.0) with fused moroidin cyclase KjaBURP as a query (GenBank QIG55799.1) in the default setting for the presence of the stephanotic acid core peptide motif QLLVW as follows:*
+
 **1. SRA-download**
 - Raw RNA-seq datasets were downloaded as described under SRA download (transcriptome assembly) with sratoolkit (v2.10.9). 100 RNA-seq datasets were downloaded per directory with a total number of 11 directories.
+
 **2. Trimming**
 - Raw RNA-seq datasets were trimmed by TrimGalore with default settings with the following script in batch mode (see instructions in Transcriptome assembly).
+
 **3. Combine paired reads**
 - To reduce file size, paired-end reads were combined into one file.
 - Generate directories for fwd reads
@@ -581,11 +584,11 @@ cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
 ```
 
 **4. Remove duplicate reads with seqkit2** - *The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.*
-- **4a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:**
+- **a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:**
 ```
 mkdir input_data_rmdup
 ```
-- **4b. Move combined trimmed reads to input_data directory:**
+- **b. Move combined trimmed reads to input_data directory:**
 ```
 mv *.fastq > input_data_rmdup
 ```
@@ -614,11 +617,11 @@ seqkit rmdup -s ./input_data/${file1} -o ./${file1}
 ```
 mkdir input_data_fq2fa
 ```
-**b. Move fastq reads to input_data/ directory:**
+- **b. Move fastq reads to input_data/ directory:**
 ```
 mv *.fq input_data_fq2fa/
 ```
-**c. Run batch seqkit-fq2fa script:**
+- **c. Run batch seqkit-fq2fa script:**
 ```
 #!/bin/bash
 #SBATCH --job-name=fastq2fasta
@@ -717,7 +720,7 @@ mv ./orfipy_cleaned_unassembled_data.fasta_out/unassembled_data.pep .
 #SBATCH --output=./split-%j
 split -l 1000000000 unassembled_data.pep small_unassembled_
 ```
-Resulting files were formatted to a .pep file.
+  - Resulting files were formatted to a .pep file.
 
 - **b. Makeblastdb**
   - An input_data directory was created:
