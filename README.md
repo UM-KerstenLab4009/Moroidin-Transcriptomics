@@ -138,9 +138,8 @@ Trinity $TRINITY_PARAMS
 module load MEGAHIT/1.2.9
 MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
 ```
-
 # Transcriptome assembly – multiple datasets
-1. Batch SRA-download
+**1. Batch SRA-download**
 
 For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
 ```
