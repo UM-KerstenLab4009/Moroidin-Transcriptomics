@@ -101,8 +101,7 @@ spades.py --rna -s ./SRA#_trimmed.fq -o spades_SRA#
 cd spades_SRA#
 mv transcripts.fasta spades_SRA#.fasta
 ```
-
-      c. Trinity
+- **c. Trinity**
 ```
 #!/bin/bash
 #SBATCH --job-name=Trinity
