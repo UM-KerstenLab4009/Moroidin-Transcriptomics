@@ -346,12 +346,12 @@ python2 run_rf.py -i sequenceserver-hits.pep -o sequenceserver-hits.html
 ```
 nano known_motifs.txt
 ```
-      and add a target core peptide motif, for example for moroidins:
+- and add a target core peptide motif, for example for moroidins:
 ```
 >moroidin pattern
 QL..W..H
 ```
-      Preloaded core peptides in known_motifs.txt are:
+- Preloaded core peptides in known_motifs.txt are:
 ```
 >Lyciumin pattern
 QP.....W
