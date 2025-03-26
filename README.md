@@ -423,8 +423,10 @@ psiblast -db cleaned_all_db -query query.faa -out cleaned_all_phiblast.txt -phi_
 grep ">" cleaned_all_phiblast.txt | awk '{print $1}' | tr -d '>' > hits.txt
 seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 ```
-  - For searching other core peptide motifs, please change the phi_pattern.txt file according to the blast-plus (v2.16.0)  documentation and use a query burpitide cyclase protein sequence, which includes the target core peptide motif.
-
+  - For searching other core peptide motifs, please change the phi_pattern.txt file according to the blast-plus (v2.16.0)  documentation and use a query burpitide cyclase protein sequence, which includes the target core peptide motif. For example, for searching moroidins (7-9 amino acids), use phi_pattern.txt file:
+```
+PA QQLLVW-x(1,3)-H
+```
 
 # Genome-guided transcriptome assembly
 **1.	SRA-download**   
