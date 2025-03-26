@@ -16,15 +16,15 @@
 - **trimgalore v0.6.7**: https://github.com/FelixKrueger/TrimGalore
 - **trinity v2.15.1**: https://github.com/trinityrnaseq/trinityrnaseq
   
-The following scripts were submitted to a high performance computing cluster via SLURM.
+The following scripts were submitted to a high performance computing cluster via SLURM. All softwares above were pre-installed under a Bioinformatics module on the computing cluster except RepeatFinder and orfipy which were installed as described below. Sequenceserver was used as a cloud-based version (https://sequenceserver.com/).
 
 # Transcriptome assembly – single dataset
 **1. SRA-download**
-- Configure your cluster for sratools commands by running the command:
+- Configure your cluster for sratools (v2.10.9) commands by running the command:
 ```
 ./vdb-config -i
 ```
-  - Target SRA datasets were primarily paired-ended data. To download a single raw RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
+  - Target RNA-seq datasets were primarily paired-end data. To download an RNA-seq dataset from the NCBI sequence read archive (SRA), run the script:
 ```
 #!/bin/bash
 #SBATCH --job-name=sra-download
@@ -41,10 +41,10 @@ The following scripts were submitted to a high performance computing cluster via
 source /etc/profile.d/http_proxy.sh
 module load Bioinformatics
 module load sratoolkit/2.10.9-udmejx7
-fasterq-dump SRR8782583 --split-files
+fasterq-dump SRA# --split-files
 ```
 **2. Trimming**
-  - To trim one raw RNA-seq dataset with TrimGalore default settings, run the script:
+  - Trimming improved precursor peptide assembly and core peptide detection in our study. To trim an RNA-seq dataset with TrimGalore (v0.6.7) default settings, run the script:
 ```
 #!/bin/bash
 #SBATCH --job-name=trimgalore
