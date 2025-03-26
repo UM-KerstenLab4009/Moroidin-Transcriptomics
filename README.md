@@ -165,7 +165,7 @@ wait
 printf "\n...done\n\n"
 ```
 **2. Batch trimming**
-- Generate directories for fwd reads and rev reads of NCBI SRA fastq-files:
+- Generate directories for fwd reads and rev reads:
 ```
 mkdir
 input_data_1
@@ -204,7 +204,7 @@ file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 trim_galore --cores 4 --paired ./input_data_1/${file1} ./input_data_2/${file2}
 ```
 **3. Batch transcriptome assembly (SPAdes)**
-- Generate directories for trimmed fwd reads and trimmed rev reads of NCBI SRA fastq-files:
+- Generate directories for trimmed fwd reads and trimmed rev reads:
 ```
 mkdir input_data_trimmed_1
 ```
@@ -305,7 +305,7 @@ cat *fa
 sed -i 's/len.*]/ /g' *.fa
 ```
 **2. Sequenceserver search and search-hit.fasta download**
-- For large-scale search of BURP domain transcripts, 100 de novo transcriptomes were combined into databases and searched via tblastn (v2.16.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
+- For large-scale search of BURP-domain transcripts, 100 *de novo* transcriptomes were combined into databases and searched via tblastn (v2.16.0+) for homologs of Sali3-2 as a BURP-domain-containing protein query (GenBank ID AAB66369) on Sequenceserver (v3.1.0) with the following BLAST parameters: evalue 1e-05, matrix BLOSUM62, gap-open 11, gap-extend 1, filter L, max_target_seqs 5000. tblastn hits from all databases were combined into a fasta-file.
 ```
 >AAB66369.1 Sali3-2 [Glycine max]
 MEFRCSVISFTILFSLALAGESHVHASLPEEDYWEAVWPNTPIPTALRDVLKPLPAGVEIDQLPKQIDDT
@@ -314,7 +314,7 @@ LGTVIGFAISKLGKNIQVLSSSFVNKQEQYTVEGVQNLGDKAVMCHGLNFRTAVFYCHKVRETTAFVVPL
 VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
 ```
 **3. Orfipy**
-- Search hits from Sequenceserver were 6-frame translated with orfipy with 450 bp minimum open reading frames due to the size of the target BURP protein domain of >200 amino acids (>600 bp).
+- Search hits from Sequenceserver were 6-frame translated with orfipy (v0.0.4) with 450 bp minimum open reading frames due to the size of the target BURP domain of >200 amino acids (>600 bp).
 ```
 #!/bin/bash
 #SBATCH --job-name=orfipy
@@ -330,7 +330,7 @@ VAGDGTKTQALAVCHSDTSGMNHHILHELMGVDPGTNPVCHFLGSKAILWVPNISMDTAYQTNVVV
 #SBATCH --output=./orfipy-%j
 orfipy --pep sequenceserver-hits.pep --min 450 --between-stops sequenceserver-hits.fasta
 ```
-**4. RepeatFinder analysis** - *RepeatFinder was run as a standalone version on a computational cluster.*
+**4. RepeatFinder analysis** - *RepeatFinder was run as a standalone version on the computational cluster.*
 - Install RepeatFinder:
 ```
 git clone https://github.com/FlorisdeWaal/repeatfinder_standalone
@@ -344,7 +344,7 @@ cp /your-directory/sequenceserver-hits.pep .
 ```
 python2 run_rf.py -i sequenceserver-hits.pep -o sequenceserver-hits.html
 ```
-- The resulting html-file includes predicted stephanotic acid-type burpitide cyclases based on the ‘QLxxW’ motif assignment. To search for other core peptide patterns, open the file known_motifs.txt in the repeatfinder_standalone/ directory:
+- The resulting html-file includes predicted stephanotic acid-type burpitide cyclases based on the ‘QL..W’ motif assignment, where '.' is any proteinogenic amino acid. To search for other core peptide patterns, open the file known_motifs.txt in the repeatfinder_standalone/ directory:
 ```
 nano known_motifs.txt
 ```
@@ -368,7 +368,7 @@ QL..W
 ```
 
 # Commandline-PHI-BLAST search and burpitide prediction
-**1. Commandline BLAST search**  - *An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly) combined as a single fasta-file.*
+**1. Commandline BLAST search**  - *An alternative to Sequenceserver-based BLAST search and RepeatFinder-based burpitide prediction is commandline PHI-BLAST. It was applied to de novo assembled plant transcriptomes (SPAdes assembly), which were combined to a single fasta-file for BLAST database generation prior to PHI-BLAST search.*
 - **a.	Generate transcriptome input file from multiple transcriptome assembly fasta files in a directory:**
 ```
 cat *.fasta > all.fasta
@@ -398,7 +398,7 @@ nano phi_pattern.txt
 PA QQL-x(2)-W
 ```
 - **d. PHI-BLAST search**
-  - Install orfipy before PHI-BLAST search as described above. The same orfipy translation parameters were applied for PHI-BLAST search as for Sequenceserver-based              tblastn search of burpitide cyclase sequences (i.e. minimum of 450 bp open reading frame length, translation between stop codons).
+  - Install orfipy before PHI-BLAST search as described above. The same orfipy translation parameters were applied for PHI-BLAST search as for Sequenceserver-based tblastn search of burpitide cyclase sequences (i.e. minimum of 450 bp open reading frame length, translation between stop codons).
 ```
 #!/bin/bash
 #SBATCH --job-name=phiblast-QLxxW
@@ -423,7 +423,7 @@ psiblast -db cleaned_all_db -query query.faa -out cleaned_all_phiblast.txt -phi_
 grep ">" cleaned_all_phiblast.txt | awk '{print $1}' | tr -d '>' > hits.txt
 seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 ```
-  - For searching other core peptide motifs, please change the phi_pattern.txt file according to the ___ manual and use a query burpitide cyclase protein sequence which includes the target core peptide motif.
+  - For searching other core peptide motifs, please change the phi_pattern.txt file according to the blast-plus (v2.16.0)  documentation and use a query burpitide cyclase protein sequence, which includes the target core peptide motif.
 
 
 # Genome-guided transcriptome assembly
@@ -434,7 +434,7 @@ seqkit subseq cleaned_all.pep hits.txt > phiblast_all_sequences.pep
 - Trim RNA-seq datasets as specified above for single datasets.
   
 **3.	STAR alignment**
-- Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific      repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify    the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter).
+- Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter). Please see STAR (v2.7.11a) documentation for further information.
 ```
 #!/bin/bash
 #SBATCH --job-name=star
@@ -452,10 +452,10 @@ module load Bioinformatics
 module load star/2.7.11a-hdp2onj
 STAR --runThreadN 7 --runMode genomeGenerate --genomeDir /path-to-directory/ --genomeFastaFiles ./genomic.fasta --sjdbGTFfile ./genome.gtf --sjdbOverhang 150
 ```
-- For large genomes, more memory might be required for STAR alignment. For example, STAR alignment of the wheat genome (16 Gbp) required 422 GB memory and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 139 GB memory.
+- For large genomes, more memory might be required for STAR alignment. For example, STAR alignment of the wheat genome (16 Gbp) required 422 GB memory on 7 CPUs and STAR alignment of the Nicotiana tabacum genome (4.5 Gbp) required 139 GB memory on 7 CPUs.
   
 **4. STAR mapping**
-- The following script was used for STAR mapping of paired-ended trimmed RNA-seq datasets:
+- The following script was used for STAR mapping of paired-end trimmed RNA-seq datasets:
 ```
 #!/bin/bash
 #SBATCH --job-name=star-map
@@ -585,7 +585,7 @@ file2=$(ls ./input_data_2/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 cat ./input_data_1/${file1} ./input_data_2/${file2} > ${file1}
 ```
 
-**4. Remove duplicate reads with seqkit2** - *The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed raw RNA-seq datasets.*
+**4. Remove duplicate reads with seqkit2** - *The seqkit2 (v2.3.0) remove duplicate command was used to remove duplicate reads in combined, trimmed RNA-seq datasets.*
 - **a. Generate directory for combined trimmed reads of NCBI SRA fastq-files:**
 ```
 mkdir input_data_rmdup
@@ -644,7 +644,7 @@ file1=$(ls ./input_data_fq2fa/ | sed -n ${SLURM_ARRAY_TASK_ID}p)
 seqkit fq2fa ./input_data_fq2fa/${file1} -o ./${file1}.fasta
 ```
 **6. Combine fasta files**
-- Fasta files were combined in one directory (usually 100 fasta files were combined) to a single file.
+- Fasta files were combined in one directory (100 fasta files were combined) to a single file.
 ```
 #!/bin/bash
 #SBATCH --job-name=cat-fasta
@@ -679,7 +679,7 @@ module load Bioinformatics
 awk '/^>/ {print $1; next} {print}' unassembled_data.fasta > cleaned_unassembled_data.fasta
 ```
 **8. 6-frame translation with orfipy**
-- The unassembled RNA-seq read fasta file was translated in 6 frames with orfipy (v0.0.4). The minimum bp length was set to 90 bp to include short read lengths in the raw RNA-seq data search. The resulting minimum protein sequence length was 30 amino acids which is the recommended minimum input length for PHI-BLAST.
+- The unassembled RNA-seq read fasta file was translated into 6 frames with orfipy (v0.0.4). The minimum open reading frame length was set to 90 bp to include short read lengths in the raw RNA-seq data search. The resulting minimum protein sequence length was 30 amino acids which is the recommended minimum input length for PHI-BLAST (blast-plus, v2.16.0).
   - Install orfipy:
 ```
 pip install orfipy
@@ -805,11 +805,11 @@ psiblast -db ./100/small_100_aa.pep_db -query query.faa -out small_100_aa.pep_db
 ```
 - phiblast.txt were analyzed by RepeatFinder for SRA datasets with KjaBURP search hits with QLLVW core peptides.
 
-# Seqkit-grep search of QLLVW motifs in unassembled data
+# Seqkit2-grep search of QLLVW motif in unassembled data
 *Unassembled RNA-seq data was searched for the presence of the stephanotic acid core peptide motif QLLVW with seqkit from 6frame-translated raw read data as follows:*
 
-- **a.  Seqkit-grep-QLLVW-search**
-  - Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame-translated RNA-seq data for the core peptide motif QLLVW with the following command. unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
+- **a.  Seqkit2-grep search for QLLVW motif**
+  - Seqkit (v2.3.0) grep command was used to search unassembled, 6-frame translated RNA-seq data for the core peptide motif QLLVW with the following command. Unassembled, 6frame-translated RNA-seq data was generated as for PHI-BLAST search of unassembled RNA-seq data (steps 1-8).
 ```
 #!/bin/bash
 #SBATCH --job-name=seqkit-grep-QLLVW
@@ -829,7 +829,7 @@ awk '/^>/ {print $1; next} {print}' unassembled_data_search.pep > cleaned_unasse
 seqkit grep -s -r -p "QLLVW" cleaned_unassembled_data_search.pep > seqkit_grep_hits.pep
 ```
 - **b. Extract SRA codes and count QLLVW reads per SRA code**
-  - SRA codes of unassembled raw RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
+  - SRA codes of unassembled RNA-seq datasets with reads encoding QLLVW motifs were extracted with the awk command in the following script:
 ```
 #!/bin/bash
 #SBATCH --job-name=SRA-codes
