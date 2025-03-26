@@ -16,7 +16,7 @@
 - **trimgalore v0.6.7**: https://github.com/FelixKrueger/TrimGalore
 - **trinity v2.15.1**: https://github.com/trinityrnaseq/trinityrnaseq
   
-The following scripts were submitted to a high performance computing cluster via SLURM. All softwares above were pre-installed under a Bioinformatics module on the computing cluster except RepeatFinder and orfipy which were installed as described below. Sequenceserver was used as a cloud-based version (https://sequenceserver.com/).
+The following scripts were submitted to a high performance computing cluster via SLURM. All softwares above were pre-installed under a Bioinformatics module on the computing cluster except RepeatFinder and orfipy, which were installed as described below. Sequenceserver was used as a cloud-based version (https://sequenceserver.com/).
 
 # Transcriptome assembly – single dataset
 **1. SRA-download**
@@ -62,7 +62,7 @@ module load Bioinformatics
 module load trimgalore/0.6.7-ztb2tpz
 trim_galore --cores 4 --paired ./SRA#_1.fastq ./ SRA#_2.fastq
 ```
-**3. Transcriptome assembly** - *Three assembler softwares were used for de novo transcriptome assembly from TrimGalore-trimmed RNA-seq datasets.*
+**3. Transcriptome assembly** - *Three assembler softwares were used for de novo transcriptome assembly from trimmed RNA-seq datasets.*
 - **a. SPAdes – paired-end datasets**
 ```
 #!/bin/bash
@@ -142,7 +142,7 @@ MEGAHIT -1 ./SRA#_1_val_1.fq -2 ./SRA#_2_val_2.fq -o megahit_ SRA#
 ```
 # Transcriptome assembly – multiple datasets
 **1. Batch SRA-download**
-- For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets with the following script:
+- For large-scale transcriptome mining, SRA datasets were downloaded in batches of 100 datasets per one directory with the following script:
 ```
 #!/bin/bash
 #SBATCH --job-name=sra-download          
@@ -243,7 +243,7 @@ cd spades_$file1
 mv transcripts.fasta /path-to-directory/spades_$file1\.fasta
 ```
 # Sequenceserver-based BLAST search and burpitide prediction
-**1. BLAST database formatting** - *Addition of transcriptome assemblies to Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific databases formatting of assemblies for Sequenceserver addition.*
+**1. BLAST database formatting** - *BLAST database generation of transcriptome assemblies by Sequenceserver requires reduction of fasta headers to less than 51 letters. Below are several scripts for assembler-specific assembly fasta file formatting for Sequenceserver-based BLAST database generation.*
 - **a. SPAdes**
 ```
 #!/bin/bash
