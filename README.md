@@ -1,18 +1,20 @@
 # Moroidin-Transcriptomics
 
 **Softwares** 
-- **sratoolkit v2.10.9**:  https://github.com/ncbi/sra-tools
-- **trimgalore v0.6.7**: https://github.com/FelixKrueger/TrimGalore
-- **seqkit v2.3.0**: https://github.com/shenwei356/seqkit/releases
-- **orfipy v0.0.4**: https://github.com/urmi-21/orfipy
-- **spades v3.15.5**: https://github.com/ablab/spades
-- **trinity v2.15.1**: https://github.com/trinityrnaseq/trinityrnaseq
-- **megahit v1.2.9**: https://github.com/voutcn/megahit
 - **blast-plus v2.16.0**: https://github.com/ncbi/blast_plus_docs
-- **stringtie v2.2.1**: https://github.com/gpertea/stringtie
-- **samtools v1.21**: https://github.com/samtools/samtools
-- **star v2.7.11a**: https://github.com/alexdobin/STAR
 - **gffread v0.12.7**: https://github.com/gpertea/gffread
+- **megahit v1.2.9**: https://github.com/voutcn/megahit
+- **orfipy v0.0.4**: https://github.com/urmi-21/orfipy
+- **RepeatFinder**: https://github.com/FlorisdeWaal/repeatfinder_standalone
+- **samtools v1.21**: https://github.com/samtools/samtools
+- **seqkit v2.3.0**: https://github.com/shenwei356/seqkit/releases
+- **sequenceserver v3.1.0**: https://github.com/wurmlab/sequenceserver
+- **spades v3.15.5**: https://github.com/ablab/spades
+- **sratoolkit v2.10.9**:  https://github.com/ncbi/sra-tools
+- **star v2.7.11a**: https://github.com/alexdobin/STAR
+- **stringtie v2.2.1**: https://github.com/gpertea/stringtie
+- **trimgalore v0.6.7**: https://github.com/FelixKrueger/TrimGalore
+- **trinity v2.15.1**: https://github.com/trinityrnaseq/trinityrnaseq
   
 The following scripts were submitted to a high performance computing cluster via SLURM.
 
