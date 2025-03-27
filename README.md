@@ -440,7 +440,7 @@ KVKPGTDPVCHFLSESDVVWVSNHGTYKPA
 - Trim RNA-seq datasets as specified above for single datasets.
   
 **3.	STAR alignment**
-- Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database or a genome-specific repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter). Please see STAR (v2.7.11a) documentation for further information.
+- Download the RefSeq genome assembly fasta file (e.g. genome.fasta) and genome annotation gtf/gff3 file (e.g. genome.gtf) from NCBI Genome database (https://www.ncbi.nlm.nih.gov/home/genomes/) or a genome-specific repository to a personal computer and transfer the files to a computational cluster in the directory for star alignment. In the following STAR alignment script, specify the -–sjdbOverhang parameter as the read length of the target SRA RNA-seq dataset minus 1 (e.g. if the read length is 151 bp, specify 150 as -–sjdbOverhang parameter). Please see STAR (v2.7.11a) documentation for further information.
 ```
 #!/bin/bash
 #SBATCH --job-name=star
