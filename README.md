@@ -167,12 +167,8 @@ printf "\n...done\n\n"
 **2. Batch trimming**
 - Generate directories for fwd reads and rev reads:
 ```
-mkdir
-input_data_1
-```
-```
-mkdir
-input_data_2
+mkdir input_data_1
+mkdir input_data_2
 ```
 - Move fwd reads to input_data_1/ directory:
 ```
@@ -207,8 +203,6 @@ trim_galore --cores 4 --paired ./input_data_1/${file1} ./input_data_2/${file2}
 - Generate directories for trimmed fwd reads and trimmed rev reads:
 ```
 mkdir input_data_trimmed_1
-```
-```
 mkdir input_data_trimmed_2
 ```
 - Move trimmed fwd reads to input_data_trimmed_1/ directory:
