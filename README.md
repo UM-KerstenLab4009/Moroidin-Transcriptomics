@@ -48,7 +48,7 @@ fasterq-dump SRA# --split-files
 ```
 #!/bin/bash
 #SBATCH --job-name=trimgalore
-#SBATCH –account=your_account
+#SBATCH --account=your_account
 #SBATCH --partition=standard 
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
